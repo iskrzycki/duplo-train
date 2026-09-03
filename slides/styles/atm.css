@@ -1,0 +1,263 @@
+/* Layout scaffolding, decorations and the reusable blocks. */
+
+/* ---- surfaces ------------------------------------------------------------ */
+.atm-slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.atm-slide__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+.atm--light .atm-slide__bg { background: var(--atm-paper); }
+
+/* The inset semi-transparent panel the template floats content on over the
+   photographic dark backgrounds. */
+.atm-slide__panel {
+  position: absolute;
+  left: var(--atm-inset-x);
+  top: var(--atm-inset-y);
+  width: var(--atm-inset-w);
+  height: var(--atm-inset-h);
+  background: var(--atm-panel);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  z-index: 1;
+}
+.atm-slide__panel--soft { background: var(--atm-panel-soft); }
+
+/* Left-to-right darkening wash: keeps type readable over the bright orb in
+   bg-orb.jpg / bg-orb-hand.jpg without hiding the artwork. */
+.atm-slide__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    rgba(3, 8, 14, 0.9) 0%,
+    rgba(3, 8, 14, 0.72) 34%,
+    rgba(3, 8, 14, 0.2) 62%,
+    rgba(3, 8, 14, 0) 82%
+  );
+}
+
+.atm-slide__deco { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.atm-slide__body { position: absolute; inset: 0; z-index: 3; }
+
+/* ---- the content grid --------------------------------------------------- */
+/*
+ * The canvas is a fixed 1280x720 (Slidev scales it as a whole), so the vertical
+ * rhythm is expressed in px taken straight off the template:
+ *   title top      26.4% of 720 = 190px   (21.7% = 156px on dense slides)
+ *   title box high 14.4% of 720 = 104px
+ *   body top       42.9% of 720 = 309px   -> 190 + 104 + 15
+ * The same three numbers also reproduce the template's dense variant, where
+ * the body sits at 38.2% (= 156 + 104 + 15). One rule, both rhythms.
+ */
+.atm-content {
+  position: absolute;
+  left: var(--atm-gutter);
+  right: var(--atm-gutter);
+  top: 190px;
+  bottom: 58px;
+  display: flex;
+  flex-direction: column;
+}
+.atm-content--hi { top: 156px; }
+
+.atm-content > h1:first-child,
+.atm-content > .atm-kicker:first-child + h1,
+.atm-split__col > h1:first-child {
+  flex: 0 0 auto;
+  min-height: 104px;
+  margin-bottom: 15px;
+}
+
+.atm-content--center {
+  top: 0;
+  bottom: 0;
+  justify-content: center;
+}
+.atm-content--center > h1:first-child { min-height: 0; margin-bottom: 0; }
+
+/* A short orange line of kicker text above the title. */
+.atm-kicker {
+  font-size: var(--atm-fs-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--atm-orange);
+  margin-bottom: 1.1em;
+}
+
+.atm-lead {
+  font-size: var(--atm-fs-lead);
+  font-weight: 300;
+  line-height: 1.25;
+}
+/* Consecutive .atm-lead lines are separate statements, not a paragraph. */
+.atm-lead + .atm-lead,
+.slidev-vclick-target.atm-lead + .slidev-vclick-target.atm-lead { margin-top: 0.62em; }
+.atm-sub { font-size: var(--atm-fs-body); opacity: 0.78; }
+.atm-caption { font-size: var(--atm-fs-caption); letter-spacing: 0.02em; opacity: 0.7; }
+
+/* Footnote band, bottom-left, clear of the logo. */
+/*
+ * Footnote band. It is nested inside .atm-content, whose own top varies with
+ * the `dense` flag, so it anchors to that box's bottom edge — which lands at
+ * 662px, i.e. inside the template's 590..666px footnote band.
+ */
+.atm-foot {
+  position: absolute;
+  left: 0;
+  right: 14%;
+  bottom: 0;
+  font-size: var(--atm-fs-caption);
+  line-height: 1.45;
+  opacity: 0.78;
+}
+
+/* ---- decorations -------------------------------------------------------- */
+.atm-deco {
+  position: absolute;
+  object-fit: contain;
+  object-position: center;
+}
+
+.atm-logo {
+  position: absolute;
+  right: 3.3%;
+  bottom: 5.8%;
+  width: 9.5%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ---- blocks ------------------------------------------------------------- */
+
+/* Bordered panel used for side-by-side comparisons. Deliberately a full
+   1px outline, not an edge stripe. */
+.atm-panel-card {
+  padding: 1.1em 1.2em;
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.atm--light .atm-panel-card {
+  background: rgba(0, 0, 0, 0.022);
+  border-color: rgba(0, 0, 0, 0.14);
+}
+.atm-panel-card--accent { border-color: var(--atm-orange); }
+.atm-panel-card > :is(h3, h4) { margin-bottom: 0.6em; }
+.atm-panel-card ul { font-size: var(--atm-fs-small); }
+
+/* The solid-orange numbered card (template slide 11). */
+.atm-numcard__num {
+  font-size: var(--atm-fs-num);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--atm-orange);
+  font-variant-numeric: tabular-nums;
+}
+.atm-numcard__box {
+  background: var(--atm-orange);
+  border: 2px solid var(--atm-navy);
+  padding: 0.85em 0.95em 0.95em;
+}
+.atm-numcard__title {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--atm-fs-body);
+  line-height: 1.15;
+  color: var(--atm-paper);
+  margin-bottom: 0.5em;
+}
+.atm-numcard__text {
+  font-size: var(--atm-fs-small);
+  line-height: 1.35;
+  color: var(--atm-ink);
+}
+
+/* Tinted note strip. */
+.atm-note {
+  padding: 0.7em 0.95em;
+  font-size: var(--atm-fs-small);
+  background: color-mix(in srgb, var(--atm-orange) 12%, transparent);
+  border-left: 2px solid var(--atm-orange);
+}
+.atm-note--quiet {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: rgba(255, 255, 255, 0.32);
+}
+.atm--light .atm-note--quiet { background: rgba(0, 0, 0, 0.04); border-left-color: rgba(0, 0, 0, 0.24); }
+
+/* Framed image, matching the thin light frame the template puts around photos. */
+.atm-frame {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 0.4em;
+  background: rgba(0, 0, 0, 0.3);
+}
+.atm-frame img { display: block; width: 100%; }
+
+/* Label + value row hung off a connector, as on template slide 10. */
+.atm-pin { display: flex; align-items: center; gap: 0.75em; }
+.atm-pin__line { flex: 0 0 auto; }
+.atm-pin__label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--atm-fs-lead);
+  line-height: 1.1;
+  color: var(--atm-orange);
+}
+
+/* Credit list on the closing slide: a narrow label column, then the reference. */
+.atm-links > div {
+  display: grid;
+  grid-template-columns: 5.6em 1fr;
+  gap: 0.6em;
+  padding: 0.22em 0;
+  font-size: var(--atm-fs-small);
+  line-height: 1.35;
+}
+.atm-links > div > span {
+  color: var(--atm-orange);
+  font-weight: 600;
+  font-size: 0.86em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-top: 0.15em;
+}
+
+/* Byte boxes for the LWP3 packet walk-through. */
+.atm-bytes { display: flex; gap: 6px; }
+.atm-byte {
+  flex: 1 1 0;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 0.35em 0 0.4em;
+}
+.atm-byte__hex {
+  font-family: var(--slidev-code-font-family, ui-monospace, monospace);
+  font-size: var(--atm-fs-lead);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--atm-paper);
+}
+.atm-byte__label {
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-top: 0.35em;
+}
+.atm-byte--hot { border-color: var(--atm-orange); background: color-mix(in srgb, var(--atm-orange) 22%, transparent); }
+.atm-byte--hot .atm-byte__hex { color: var(--atm-orange-2); }
+.atm-byte--hot .atm-byte__label { opacity: 0.95; color: var(--atm-orange-2); }
+
+/* v-click default: fade + tiny rise, so click-throughs stay calm. */
+.slidev-vclick-target { transition: opacity 260ms ease, transform 260ms ease; }
+.slidev-vclick-hidden { opacity: 0; transform: translateY(4px); }

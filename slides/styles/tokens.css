@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+
+/*
+ * ATM 19 design tokens.
+ *
+ * Every value here was read straight out of the organiser's template
+ * (Allegro_Prezentacja atm_19_video_20_08.pptx):
+ *   - colours from the srgbClr values used across ppt/slides/*.xml
+ *   - geometry from the a:off / a:ext of the title & body placeholders
+ *   - type scale from the a:rPr sz attributes
+ *
+ * The template canvas is 20104100 x 11309350 EMU = 21.98in x 12.36in (890.5pt tall).
+ * Slidev's canvas here is 1280 x 720px, so 1pt of template = 720/890.5 = 0.8085px.
+ * Sizes below carry the original pt value in a comment so they stay traceable.
+ */
+:root {
+  /* ---- palette ---- */
+  --atm-orange: #ff5a00;        /* primary; 41 uses in the template */
+  --atm-orange-2: #ff6e00;      /* secondary/lighter; 36 uses */
+  --atm-navy: #21364f;          /* card outline on the numbered-card slide */
+  --atm-ink: #000000;           /* body copy on light slides */
+  --atm-paper: #ffffff;
+  --atm-void: #051018;          /* solid dark background (slideLayout12) */
+
+  --atm-panel: rgba(0, 0, 0, 0.749);      /* dk1 @ alpha 74902 — inset panel on dark slides */
+  --atm-panel-soft: rgba(0, 0, 0, 0.631); /* dk1 @ alpha 63137 — lighter variant */
+
+  /* ---- geometry (% of canvas, straight from the placeholders) ---- */
+  --atm-gutter: 10.6%;   /* left margin of every title/body placeholder */
+  --atm-title-y: 26.4%;  /* standard title top */
+  --atm-title-y-hi: 21.7%; /* title top when the slide carries more content */
+  --atm-body-y: 42.9%;   /* standard body top */
+  --atm-foot-y: 82%;     /* footnote band */
+
+  --atm-inset-x: 3.5%;   /* the inset panel rectangle on dark slides */
+  --atm-inset-y: 5.5%;
+  --atm-inset-w: 92.8%;
+  --atm-inset-h: 88.9%;
+
+  /* ---- type scale (px on a 1280x720 canvas = template pt x 0.8085) ---- */
+  --atm-fs-hero: 58px;   /* 72pt — cover / section number */
+  --atm-fs-num: 48px;    /* 60pt — the 01..04 card numbers */
+  --atm-fs-title: 40px;  /* 50pt — every slide title */
+  --atm-fs-lead: 26px;   /* 32pt — sub-heads, card headers, callout labels */
+  --atm-fs-body: 19px;   /* 24pt — body copy */
+  --atm-fs-small: 15px;  /* 18pt — card body, dense lists */
+  --atm-fs-caption: 11px;/* 14pt — captions & footnotes */
+  --atm-fs-code: 15px;
+
+  --atm-lh-title: 1.14;
+  --atm-lh-body: 1.42;
+
+  /* ---- slidev overrides ---- */
+  --slidev-theme-primary: var(--atm-orange);
+  --slidev-code-font-size: var(--atm-fs-code);
+  --slidev-code-line-height: 1.5;
+  --slidev-code-background: rgba(0, 0, 0, 0.42);
+  --slidev-code-radius: 0;
+}

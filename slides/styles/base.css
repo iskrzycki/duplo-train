@@ -1,0 +1,153 @@
+/* Typography and prose rules shared by every layout. */
+
+.slidev-layout {
+  font-family: 'Open Sans', ui-sans-serif, system-ui, sans-serif,
+    'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji';
+  font-weight: 300;                 /* the template's body face is Open Sans Light */
+  font-size: var(--atm-fs-body);
+  line-height: var(--atm-lh-body);
+  letter-spacing: 0.002em;
+  padding: 0;                       /* layouts own their own padding */
+}
+
+/* ---- headings ------------------------------------------------------------ */
+/* The template sets every title in Open Sans Bold, uppercase, tight leading,
+   and never underlines it. */
+.slidev-layout :is(h1, h2, h3, h4) {
+  font-family: 'Open Sans', ui-sans-serif, sans-serif,
+    'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji';
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: var(--atm-lh-title);
+  letter-spacing: -0.005em;
+  margin: 0;
+  border: 0;
+}
+
+.slidev-layout h1 { font-size: var(--atm-fs-title); }
+.slidev-layout h2 { font-size: var(--atm-fs-lead); }
+.slidev-layout h3 { font-size: var(--atm-fs-body); letter-spacing: 0.04em; }
+.slidev-layout h4 { font-size: var(--atm-fs-small); letter-spacing: 0.06em; }
+
+/* h1 colour follows the surface: white on dark slides, orange on light ones. */
+.atm--dark  :is(h1, h2) { color: var(--atm-paper); }
+.atm--light :is(h1, h2) { color: var(--atm-orange); }
+.atm--dark  h3 { color: var(--atm-orange-2); }
+.atm--light h3 { color: var(--atm-orange); }
+
+.atm--dark  { color: var(--atm-paper); }
+.atm--light { color: var(--atm-ink); }
+
+/* ---- paragraphs & lists -------------------------------------------------- */
+.slidev-layout p { margin: 0 0 0.55em; }
+.slidev-layout p:last-child { margin-bottom: 0; }
+
+.slidev-layout :is(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Bullets are square, orange, and sit outside the text column — the template
+   uses the same square-dot motif as its background art. */
+.slidev-layout ul > li {
+  position: relative;
+  padding-left: 1.05em;
+  margin-bottom: 0.5em;
+}
+.slidev-layout ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.32em;
+  height: 0.32em;
+  background: var(--atm-orange);
+}
+.slidev-layout ol { counter-reset: atm-ol; }
+.slidev-layout ol > li {
+  position: relative;
+  padding-left: 1.5em;
+  margin-bottom: 0.5em;
+  counter-increment: atm-ol;
+}
+.slidev-layout ol > li::before {
+  content: counter(atm-ol, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  color: var(--atm-orange);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.slidev-layout li > :is(ul, ol) { margin-top: 0.45em; }
+.slidev-layout li:last-child { margin-bottom: 0; }
+
+.slidev-layout strong { font-weight: 700; }
+.atm--dark  strong { color: var(--atm-paper); }
+.atm--light strong { color: var(--atm-ink); }
+.slidev-layout em { font-style: italic; opacity: 0.85; }
+
+/* ---- inline code & code blocks ------------------------------------------- */
+.slidev-layout :not(pre) > code {
+  font-size: 0.92em;
+  padding: 0.08em 0.34em;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffb27a;
+  font-weight: 400;
+}
+.atm--light :not(pre) > code {
+  color: #b83f00;
+  background: color-mix(in srgb, var(--atm-orange) 13%, transparent);
+}
+
+.slidev-layout :is(code, pre, .slidev-code) {
+  font-family: var(--slidev-code-font-family, ui-monospace, monospace),
+    'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+/* .atm-sub is a standfirst, not part of the block that follows it. */
+.slidev-layout .atm-sub + :is(ul, ol, pre, .slidev-code) { margin-top: 0.85em; }
+
+.slidev-layout .slidev-code,
+.slidev-layout pre {
+  font-size: var(--atm-fs-code);
+  line-height: 1.5;
+  border-radius: 0;
+  border-left: 2px solid var(--atm-orange);
+  padding: 0.85em 1em !important;
+}
+.atm--dark .slidev-code  { background: rgba(0, 0, 0, 0.74) !important; }
+.atm--light .slidev-code { background: #f4f4f4 !important; }
+
+/*
+ * Slidev emits `html.dark .shiki span { color: var(--shiki-dark) }` and the
+ * light-mode mirror, so a globally locked colour scheme would paint the light
+ * slides' code in the dark theme's near-white. Each surface picks its own Shiki
+ * theme instead, which keeps syntax colours intact either way. !important is
+ * needed to outrank Slidev's html-scoped rule.
+ */
+.atm--dark .shiki,
+.atm--dark .shiki span  { color: var(--shiki-dark) !important; }
+.atm--light .shiki,
+.atm--light .shiki span { color: var(--shiki-light) !important; }
+
+/* ---- tables -------------------------------------------------------------- */
+.slidev-layout table { width: 100%; border-collapse: collapse; font-size: var(--atm-fs-small); }
+.slidev-layout th {
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+  font-size: 0.86em;
+  color: var(--atm-orange);
+  padding: 0.35em 0.8em 0.35em 0;
+}
+.slidev-layout td { padding: 0.35em 0.8em 0.35em 0; vertical-align: top; }
+.atm--dark  :is(th, td) { border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.atm--light :is(th, td) { border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+
+.slidev-layout a { color: var(--atm-orange); text-decoration: none; border-bottom: 1px solid currentColor; }
+
+/* Presenter/overview chrome should not inherit the uppercase title rules. */
+.slidev-page { background: var(--atm-void); }

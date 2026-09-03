@@ -1,0 +1,50 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "duplo-mock",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "app:mock"
+      ],
+      "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "duplo-web-only",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "web"
+      ],
+      "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "duplo-real",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "app"
+      ],
+      "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "slides",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "slides",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3030"
+      ],
+      "port": 3030,
+      "autoPort": true
+    }
+  ]
+}

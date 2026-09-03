@@ -1,0 +1,4 @@
+No.  Protocol  Info
+...  ATT       Write Command, Handle: 0x000e
+                 Value: 08008100115100 64
+               └─ speed byte ────────────↑

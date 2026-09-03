@@ -1,0 +1,33 @@
+{
+  "name": "duplo-train",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Showcase: controlling a LEGO DUPLO Train Base from Node.js with node-poweredup (verbose pairing/command logs, sensors, sounds, motor)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "start:raw": "node index.js --raw",
+    "debug:color": "node debug-color.js",
+    "start:debug": "DEBUG=* node index.js",
+    "server": "node server.js",
+    "server:mock": "node server.js --mock",
+    "web": "vite",
+    "app": "concurrently -k -n train,web -c green,cyan \"npm run server\" \"npm run web\"",
+    "app:mock": "concurrently -k -n train,web -c green,cyan \"npm run server:mock\" \"npm run web\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "node-poweredup": "^10.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.0.0",
+    "vite": "^7.0.0"
+  }
+}
