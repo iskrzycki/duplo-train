@@ -18,7 +18,7 @@ npm run dev --prefix slides      # http://localhost:3030
 | `npm run export:png` | One PNG per slide in `dist/png/` |
 | `npm run notes` | Speaker notes as a PDF |
 
-Presenter view with the Polish notes is at
+Presenter view with the speaker notes (English) is at
 [localhost:3030/presenter](http://localhost:3030/presenter); the grid of all
 slides is at [/overview](http://localhost:3030/overview). `f` fullscreen,
 `o` overview, `d` dark/light, `g` go-to-slide.
@@ -112,26 +112,34 @@ landing on top of the bottom-right decorations.
 | `<Connector width="140px" flipX>` | The template's signature dot-line-dot, as SVG |
 | `<Deco src="deco-chip" :x="76" :y="74.3" :w="21.7">` | Any decoration, placed by % of canvas |
 | `<AtmLogo variant="orange">` | The lockup, bottom-right |
+| `<Shot label="…" hint="…" ratio="16/10">` | A picture, or a dashed placeholder until the file exists |
 
 Handy CSS classes: `.atm-lead` (32pt standfirst), `.atm-sub` (24pt subtitle),
 `.atm-caption` (14pt), `.atm-foot` (footnote band), `.atm-kicker` (letterspaced
 orange eyebrow), `.atm-frame` (thin photo frame), `.atm-pin` / `.atm-pin__label`
 (connector-hung label).
 
-## Two deliberate departures from the outline
+## How the deck is put together
 
-- **`transition: fade`** instead of `slide-left`. The deck alternates full-bleed
-  dark artwork with white slides, and a horizontal slide makes those swaps lurch.
-  Change the `transition:` line in `slides.md` if you disagree.
-- **Two slides added**: an agenda on the numbered-card layout (which the template
-  clearly wants used), and a third section divider before the protocol section so
-  each of the four agenda items gets one. Both carry their own Polish notes.
+Slides carry keywords and schematics only — the detail lives in the speaker
+notes (English, one block per slide, with timing cues). If a slide feels like it
+needs another bullet, the sentence probably belongs in its notes instead.
+
+Every photo and screenshot is a `<Shot>`: until the real file exists it renders
+as a dashed placeholder naming the file it wants. See
+[`public/shots/README.md`](public/shots/README.md) for the list.
+
+`transition: fade` is deliberate — the deck alternates full-bleed dark artwork
+with white slides, and a horizontal slide makes those swaps lurch.
 
 ## Before you present
 
-- **Replace `snippets/wireshark-capture.txt`** with a few lines from your own
-  capture — the "Sniffing the traffic" slide reads it straight off disk.
-- **Fill in the repo link** on the closing slide (`<your repo link>`).
+- **Drop the pictures into `public/shots/`** and point each `<Shot>` at its file
+  (`src="/shots/dongle.jpg"`); the placeholder disappears on its own.
+- **Fill in the story beats** on the "Where it started" notes — that slide is
+  personal and the notes only sketch the shape.
 - **Record the demo.** The notes say it and it's worth repeating: a conference
   room is crowded 2.4 GHz, and BLE will pick the worst possible moment.
-- Speaker notes are in Polish, one block per slide, and carry the timing cues.
+- `snippets/wireshark-capture.txt` is no longer on a slide — the capture is a
+  screenshot now. Delete it, or wire it back in with
+  `<<< @/snippets/wireshark-capture.txt`.
