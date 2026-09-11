@@ -79,6 +79,7 @@ Each one mirrors a specific layout in the template.
 | Layout | Template origin | Use it for |
 |---|---|---|
 | `atm-cover` | `slideLayout2` + slide 2 | The opening slide |
+| `atm-photo` | custom photo layout | Full-bleed product or object photo |
 | `atm-section` | `slideLayout4` + slide 12 | Section dividers; pass `number: '01'` |
 | `atm-cards` | slide 11 | A row of numbered orange cards; cards go in `::cards::` |
 | `atm-statement` | slide 3 | One sentence, no furniture; `align: center` to centre it |
@@ -134,12 +135,9 @@ with white slides, and a horizontal slide makes those swaps lurch.
 
 ## Before you present
 
-- **Drop the pictures into `public/shots/`** and point each `<Shot>` at its file
-  (`src="/shots/dongle.jpg"`); the placeholder disappears on its own.
-- **Fill in the story beats** on the "Where it started" notes — that slide is
-  personal and the notes only sketch the shape.
-- **Record the demo.** The notes say it and it's worth repeating: a conference
-  room is crowded 2.4 GHz, and BLE will pick the worst possible moment.
-- `snippets/wireshark-capture.txt` is no longer on a slide — the capture is a
-  screenshot now. Delete it, or wire it back in with
-  `<<< @/snippets/wireshark-capture.txt`.
+- **Drop the remaining pictures and captures into `public/shots/`**. The
+  placeholder disappears when the matching `<Shot>` gets a real `src`.
+- Add the official-app GATT screenshots, the Wireshark screenshots, the final
+  web-panel image, and the recorded demo before presenting.
+- Keep the recorded demo as a fallback. A conference room is crowded 2.4 GHz,
+  and BLE discovery is the fragile part of the live demo.

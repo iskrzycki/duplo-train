@@ -15,11 +15,12 @@ withDefaults(defineProps<{
   hint?: string
   caption?: string
   ratio?: string
-}>(), { ratio: '16/10' })
+  plain?: boolean
+}>(), { ratio: '16/10', plain: false })
 </script>
 
 <template>
-  <figure class="atm-shot">
+  <figure class="atm-shot" :class="{ 'atm-shot--plain': plain }">
     <img v-if="src" :src="src" :alt="caption ?? label ?? ''" />
     <div v-else class="atm-shot__ph" :style="{ aspectRatio: ratio }">
       <div class="atm-shot__icon">🖼</div>
@@ -37,6 +38,7 @@ withDefaults(defineProps<{
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.28);
 }
+.atm-shot--plain img { border: 0; }
 .atm--light .atm-shot img { border-color: rgba(0, 0, 0, 0.18); }
 
 .atm-shot__ph {

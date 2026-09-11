@@ -105,6 +105,25 @@
 .atm-sub { font-size: var(--atm-fs-body); opacity: 0.78; }
 .atm-caption { font-size: var(--atm-fs-caption); letter-spacing: 0.02em; opacity: 0.7; }
 
+/* Small technical blocks that need a little more contrast than body copy. */
+.atm-gatt-spec {
+  padding: 0.9em 1.1em;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 2px solid var(--atm-orange);
+}
+.atm-gatt-spec code {
+  display: block;
+  white-space: nowrap;
+  font-size: 0.78em;
+}
+.atm-code-samples h3 { margin-bottom: 0.7em; }
+.atm-code-samples .slidev-code,
+.atm-code-samples pre {
+  font-size: 12px;
+  line-height: 1.4;
+  min-height: 150px;
+}
+
 /* Footnote band, bottom-left, clear of the logo. */
 /*
  * Footnote band. It is nested inside .atm-content, whose own top varies with
