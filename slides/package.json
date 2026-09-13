@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "slidev",
     "build": "slidev build --base ./",
-    "export": "slidev export --format pdf --output dist/duplo-train.pdf",
-    "export:png": "slidev export --format png --output dist/png",
+    "export": "slidev export --per-slide --format pdf --output dist/duplo-train.pdf",
+    "export:png": "slidev export --per-slide --format png --output dist/png",
     "notes": "slidev export-notes --output dist/speaker-notes.pdf",
     "open": "slidev --open"
   },

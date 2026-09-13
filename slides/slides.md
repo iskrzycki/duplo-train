@@ -131,9 +131,13 @@ The app, 50 seconds.
 
 The app has a lovely animation upon startup, but then, it offers just a few videos and the control pane for our train. The control UI looks like this and it's very limited:
 if offers going forward and backward, stopping the engine,
-plays 5 sounds and has 5 light colors in a toggle mode. so you cannot even choose the one that you want.
+plays 5 sounds and has 5 light colors in a toggle mode. So you cannot even choose the one that you want.
 
 It's reasonable - the app was made for kids, so it has to be as simple as possible.
+
+But, this screen has proved something important for me - there are some commands going over the air between app and the train.
+
+This leads us to the Bluetooth technology.
 -->
 
 ---
@@ -148,7 +152,7 @@ dense: true
 
 <div class="grid grid-cols-2 gap-5 mt-6">
 
-<PanelCard title="Bluetooth Classic">
+<PanelCard v-click title="Bluetooth Classic">
 
 - Continuous streams
 - Higher power use
@@ -166,15 +170,11 @@ dense: true
 
 </div>
 
-<div v-click class="atm-note mt-6">
-The train uses BLE. Classic Bluetooth cannot talk to its GATT service.
-</div>
-
 <!--
 Bluetooth versus BLE, 55 seconds.
 
 
-I mentioned Bluetooth before, so we need to clarify one thing. Bluetooth technology splits into two, very different protocols.
+Regards Bluetooth, we need to clarify one thing. Bluetooth technology splits into two, very different protocols.
 
 Classic Bluetooth is built for an open stream such as audio. It's like a virtual wire. Examples: headphones, keyboards, game pads etc. 
 
@@ -283,6 +283,47 @@ The important order is start, select the train, then open the official app.
 The sniffer must catch the one-time CONNECT_IND packet. In Wireshark, filter
 on btatt. The useful rows are ATT Write Commands to the LEGO hub
 characteristic. The next slide decodes one of those writes.
+-->
+
+
+---
+layout: atm-light
+deco: corner
+dense: true
+---
+
+# BLE connection sequence
+
+<BleConnectionDiagram />
+
+<div v-click="5" class="atm-note mt-5">
+Miss <code>CONNECT_IND</code> and the sniffer cannot follow the connection that comes after it.
+</div>
+
+<!--
+How a BLE connection starts, 60 seconds.
+
+01. Advertisement. The train is the peripheral. It periodically broadcasts an
+advertisement on the three primary advertising channels. A phone or script
+scans and recognises the train from its name and manufacturer data.
+
+02. CONNECT_IND. When the central decides to connect, it sends CONNECT_IND
+exactly once. This packet carries the Access Address plus the timing and
+channel-hopping parameters.
+
+03. Data channels. After the handshake, both controllers leave the advertising
+channels and meet on the data channels according to the shared hopping
+sequence.
+
+04. GATT / ATT. Only now does the application-level traffic begin: service
+discovery, writes to the LEGO characteristic, and notifications back from the
+sensors. The service UUID ending in 1623 is LEGO's logical GATT service. The
+characteristic UUID ending in 1624 is the actual data pipe inside that service,
+with Write and Notify properties. It carries LWP3 commands and sensor data. The
+UUIDs identify GATT objects, not RF channels.
+
+This is why the sniffer must be running before the app starts, and why forcing a
+reconnect helps when CONNECT_IND was missed.
 -->
 
 
@@ -655,4 +696,48 @@ The controller does not change the BLE protocol. The browser reads the 8BitDo
 gamepad, sends a small WebSocket command to the Node server, and the server
 writes the same GATT characteristic. That is the practical payoff: once the
 protocol is understood, the phone is no longer special.
+-->
+
+
+---
+layout: atm-light
+deco: corner
+dense: true
+---
+
+# DEMO
+
+<div class="atm-sub">Train in motion — first capture</div>
+
+<div class="mt-4 flex justify-center">
+
+<SlidevVideo
+  controls
+  autoreset="slide"
+  playsinline
+  preload="metadata"
+  style="display: block; width: 78%; height: 335px; object-fit: contain; background: #101820; border: 1px solid rgba(0, 0, 0, 0.18);"
+>
+  <source src="/videos/IMG_6800.mp4" type="video/mp4" />
+  <source src="/videos/IMG_6800.MOV" type="video/quicktime" />
+  <p>
+    This browser cannot play the demo. Open
+    <a href="/videos/IMG_6800.mp4">the MP4 file</a> directly.
+  </p>
+</SlidevVideo>
+
+</div>
+
+<div class="atm-caption mt-2 text-center">iPhone test recording · 4.7 s</div>
+
+<!--
+Demo, 30 seconds.
+
+This is the short test recording from the iPhone. Start it manually with the
+built-in controls. The slide uses the H.264 MP4 copy first, with the original
+MOV as a fallback. The video resets when leaving the slide so the demo starts
+from the beginning each time.
+
+Implementation references: https://sli.dev/builtin/components.html and
+https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs
 -->
