@@ -216,18 +216,19 @@ deco: none
 
 <v-clicks>
 
-- Nordic nRF Sniffer firmware
-- Wireshark extcap plugin
-- Captures the connection before the app takes over
+- Clear documentation and open tooling
+- Firmware, Wireshark plugins and community tooling
+- Affordable: around $20, depending on the seller
+- For this demo: BLE only. The nRF52840 also supports 802.15.4-based protocols
 
 </v-clicks>
 
 ::right::
 
-<div class="mt-[70px] flex justify-center">
+<div class="mt-[18px] flex justify-center">
 
 <div style="width: 120px">
-  <Shot src="/shots/nrf52840.png" caption="Nordic nRF52840 dongle + nRF Sniffer" plain />
+  <Shot src="/shots/nrf52840.png" plain />
 </div>
 
 </div>
@@ -250,39 +251,119 @@ deco: none
 
 # Wireshark
 
-<div class="atm-sub">From radio packets to an ATT write</div>
+<div class="atm-sub">An open-source microscope for network traffic</div>
 
 <div class="mt-5">
 
 <v-clicks>
 
-- Start capture
-- Select the train
-- Filter on <code>btatt</code>
+- Free to use and open source under the GPL
+- Industry-standard, cross-platform analyzer
+- Capture live traffic or open saved captures
+- Decode and filter protocols down to individual fields
 
 </v-clicks>
-
-<div class="atm-note atm-note--quiet mt-6">
-One speed change becomes one visible GATT write.
-</div>
 
 </div>
 
 ::right::
 
-<div class="mt-[110px]">
+<div class="mt-[-20px] -mx-8">
 
-<Shot label="Screenshot — Wireshark packet list" hint="public/shots/wireshark-list.png" ratio="16/9" />
+<Shot
+  src="/shots/wireshark-gui.png"
+  label="Screenshot — Wireshark GUI"
+  caption="Wireshark shows the packet list, decoded fields and raw bytes together."
+  ratio="16/9"
+  />
 
 </div>
 
 <!--
 Wireshark, 50 seconds.
 
-The important order is start, select the train, then open the official app.
-The sniffer must catch the one-time CONNECT_IND packet. In Wireshark, filter
-on btatt. The useful rows are ATT Write Commands to the LEGO hub
-characteristic. The next slide decodes one of those writes.
+Wireshark is free, open-source software released under the GNU GPL. It is a
+widely used, cross-platform network protocol analyzer: it can capture live
+traffic, open saved captures, decode hundreds of protocols, and filter packets
+down to individual fields. The official documentation describes it as useful
+for troubleshooting, security analysis, QA, protocol development, and learning.
+
+In our case, start the capture, select the train, then open the official app.
+Filter on btatt and look for ATT Write Commands to the LEGO hub characteristic.
+The next slide decodes one of those writes.
+
+Sources:
+https://www.wireshark.org/about
+https://www.wireshark.org/docs/wsug_html_chunked/ChapterIntroduction.html
+-->
+
+---
+layout: atm-section
+---
+
+# Sniffing the official app
+
+<div class="atm-lead">From a button press to the packets behind it</div>
+
+<!--
+Transition, 15 seconds.
+
+Now that we have the tool, we can watch the official app talk to the train.
+We will press one control, find the resulting BLE packet, and then open it
+byte by byte.
+-->
+
+---
+layout: atm-dark
+bg: soft
+panel: true
+dense: true
+deco: none
+---
+
+# ADV_IND frame
+
+<div class="atm-sub">The train announces itself before the connection starts</div>
+
+<div class="mt-5">
+  <AnnotatedScreenshot
+    src="/shots/wireshark/ADV_IND.png"
+    alt="Wireshark ADV_IND frame with three highlighted fields"
+    mode="accumulate"
+    :annotations="[
+      {
+        label: '1 · ADV_IND',
+        rect: [2.5, 25.3, 95, 8.1],
+        title: '1. Packet header',
+        value: 'ADV_IND',
+        description: 'oznacza reklamę BLE: pociąg nadaje ją i może przyjąć połączenie.',
+      },
+      {
+        label: '2 · Address',
+        rect: [2.5, 31.8, 95, 8.1],
+        title: '2. Advertising address',
+        value: 'ec:9a:34:ac:d1:84',
+        description: 'to adres nadajnika, który wysłał tę reklamę.',
+      },
+      {
+        label: '3 · LEGO data',
+        rect: [6, 58.7, 90.5, 27.8],
+        title: '3. Manufacturer data',
+        value: '0x0397',
+        description: 'to identyfikator firmy LEGO. Następne bajty należą do danych producenta.',
+      },
+    ]"
+  />
+</div>
+
+<!--
+ADV_IND, 45 seconds.
+
+This is an advertising packet on one of BLE's primary advertising channels.
+Click 1: the PDU type tells us that the train is advertising and can accept a
+connection. Click 2: the advertising address identifies the sender. Click 3:
+the manufacturer data contains LEGO's company ID (0x0397) and vendor-specific
+bytes that help recognise the train before CONNECT_IND appears.
 -->
 
 
@@ -537,30 +618,68 @@ dense: true
 
 # Code samples
 
-<div class="grid grid-cols-3 gap-5 mt-4 atm-code-samples">
+<div class="atm-code-intro">
+  <div class="atm-lead">Three small pieces make the integration work</div>
+  <div class="atm-sub mt-4">Connection, sensor events, and a motor driver</div>
+</div>
 
-<div>
+<!--
+Code samples, 10 seconds.
 
-<h3>Connection</h3>
+The next three slides show the small pieces that matter. The connection is
+ordinary BLE discovery and GATT connection. The library emits sensor events from
+notifications. The one non-obvious part is the motor driver:
+the DUPLO base cuts a one-off power command after roughly 200 ms when it does
+not detect wheel movement, so the code keeps refreshing non-zero power. That
+is also what the official app does.
+-->
+
+---
+layout: atm-light
+deco: chip
+dense: true
+---
+
+# Connection
+
+<div class="atm-code-slide">
+
+<div class="atm-sub">Discover a hub, connect, and start scanning</div>
 
 ```js
 const poweredUP = new PoweredUP()
+
 poweredUP.on('discover', async hub => {
   await hub.connect()
 })
+
 poweredUP.scan()
 ```
 
 </div>
 
-<div>
+<!--
+The library wraps the BLE scan and GATT connection. Once a hub is discovered,
+the application connects and can start working with its ports and sensors.
+-->
 
-<h3>Sensors</h3>
+---
+layout: atm-light
+deco: chip
+dense: true
+---
+
+# Sensor events
+
+<div class="atm-code-slide">
+
+<div class="atm-sub">Read motion and battery updates from notifications</div>
 
 ```js
 speedometer.on('speed', ({ speed }) => {
   console.log(speed)
 })
+
 hub.on('batteryLevel', data => {
   console.log(data.batteryLevel)
 })
@@ -568,35 +687,43 @@ hub.on('batteryLevel', data => {
 
 </div>
 
-<div>
+<!--
+The library turns BLE notifications into ordinary JavaScript events. The app
+can listen for speedometer and battery changes without decoding packets itself.
+-->
 
-<h3>Engine setup</h3>
+---
+layout: atm-light
+deco: chip
+dense: true
+---
+
+# Engine setup
+
+<div class="atm-code-slide">
+
+<div class="atm-sub">Find the motor and keep its power command alive</div>
 
 ```js
 const motor = await hub
   .waitForDeviceByType(MOTOR)
-const driver =
-  makeMotorDriver(motor)
+
+const driver = makeMotorDriver(motor)
+
 driver.set(45)
 driver.stop()
 ```
 
+<div class="atm-note mt-6">
+The driver re-sends non-zero power every 100 ms. The hub's motion watchdog stops one-off commands.
 </div>
 
-</div>
-
-<div class="atm-note mt-5">
-The driver re-sends power every 100 ms. The hub's motion watchdog stops one-off commands.
 </div>
 
 <!--
-Code, 80 seconds.
-
-The connection is ordinary BLE discovery and GATT connection. The library emits
-sensor events from notifications. The one non-obvious part is the motor driver:
-the DUPLO base cuts a one-off power command after roughly 200 ms when it does
-not detect wheel movement, so the code keeps refreshing non-zero power. That
-is also what the official app does.
+The DUPLO base cuts a one-off power command after roughly 200 ms when it does
+not detect wheel movement. The driver keeps refreshing non-zero power, which is
+also what the official app does.
 -->
 
 

@@ -114,6 +114,7 @@ landing on top of the bottom-right decorations.
 | `<Deco src="deco-chip" :x="76" :y="74.3" :w="21.7">` | Any decoration, placed by % of canvas |
 | `<AtmLogo variant="orange">` | The lockup, bottom-right |
 | `<Shot label="…" hint="…" ratio="16/10">` | A picture, or a dashed placeholder until the file exists |
+| `<AnnotatedScreenshot src="…" :annotations="[…]" mode="accumulate">` | Screenshot with click-revealed annotations; each annotation defines a label, `[left, top, width, height]` as image percentages, title, optional code value, and description. Use `mode="focus"` to show only the current annotation. |
 
 Handy CSS classes: `.atm-lead` (32pt standfirst), `.atm-sub` (24pt subtitle),
 `.atm-caption` (14pt), `.atm-foot` (footnote band), `.atm-kicker` (letterspaced

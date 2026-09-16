@@ -11,6 +11,7 @@ the slide at them (`src="/shots/<file>"`) — the dashed placeholder disappears.
 | `duplo-app.png` | Official Powered UP app screenshot |
 | `wireshark-list.png` | Wireshark packet list, filtered on `btatt` |
 | `wireshark-detail.png` | The ATT Write frame expanded |
+| `wireshark/ADV_IND.png` | Expanded BLE advertising packet with `ADV_IND` |
 | `official-app-gatt.png` | Official app GATT capture |
 | `official-app-gatt-detail.png` | Official app GATT detail |
 | `panel.png` | The demo web panel |
