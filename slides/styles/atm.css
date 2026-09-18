@@ -294,3 +294,33 @@
 /* v-click default: fade + tiny rise, so click-throughs stay calm. */
 .slidev-vclick-target { transition: opacity 260ms ease, transform 260ms ease; }
 .slidev-vclick-hidden { opacity: 0; transform: translateY(4px); }
+
+/* Compact packet sequence with one changing Wireshark view below it. */
+.connection-screenshot {
+  position: relative;
+  width: min(100%, 760px);
+  min-height: 330px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.connection-screenshot__state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.connection-screenshot__state .atm-shot {
+  width: 100%;
+}
+
+.connection-screenshot .atm-shot img {
+  max-height: 330px;
+  object-fit: contain;
+}
+
+.connection-screenshot .atm-shot__ph {
+  height: 330px;
+  aspect-ratio: auto !important;
+}

@@ -244,262 +244,64 @@ byte by byte.
 
 ---
 layout: atm-light
-deco: corner
+deco: none
 dense: true
+top: 100
+clicksStart: 1
 ---
 
 # BLE connection sequence
 
 <BleConnectionDiagram />
 
-<div v-click="5" class="atm-note mt-5">
-Miss <code>CONNECT_IND</code> and the sniffer cannot follow the connection that comes after it.
+<div class="connection-screenshot mt-6">
+  <div v-click="[1, 2]" class="connection-screenshot__state">
+    <Shot
+      src="/shots/wireshark/ADV_IND.png"
+      label="Wireshark frame 3230 — ADV_IND"
+      ratio="16/7"
+      plain
+      />
+  </div>
+
+  <div v-click="[2, 3]" class="connection-screenshot__state">
+    <Shot
+      src="/shots/wireshark/CONNECT_IND.png"
+      label="Wireshark frame 3255 — CONNECT_IND"
+      hint="capture frame 3255 · add screenshot here"
+      ratio="16/7"
+      plain
+      />
+  </div>
+
+  <div v-click="[3, 4]" class="connection-screenshot__state">
+    <Shot
+      label="Wireshark frame 3264 — GATT / ATT"
+      hint="CCCD write · add screenshot here"
+      ratio="16/7"
+      />
+  </div>
+
+  <div v-click="4" class="connection-screenshot__state">
+    <Shot
+      label="Wireshark frame 3821 — notification"
+      hint="battery notification · add screenshot here"
+      ratio="16/7"
+      />
+  </div>
 </div>
 
 <!--
-How a BLE connection starts, 60 seconds.
+How a BLE connection starts.
 
-01. Advertisement. The train is the peripheral. It periodically broadcasts an
-advertisement on the three primary advertising channels. A phone or script
-scans and recognises the train from its name and manufacturer data.
+The compact sequence stays visible at the top. With each click, switch the
+lower Wireshark view: ADV_IND, CONNECT_IND, GATT traffic, and a notification.
+The small transition tiles stay static between the main steps.
 
-02. CONNECT_IND. When the central decides to connect, it sends CONNECT_IND
-exactly once. This packet carries the Access Address plus the timing and
-channel-hopping parameters.
 
-03. Connected link. After the handshake, both controllers leave the advertising
-channels. The link now hops across data channels 0–36 using a shared sequence.
-This is the radio path that carries the GATT traffic shown next.
 
-04. GATT / ATT. Only now does the application-level traffic begin: service
-discovery, writes to the LEGO characteristic, and notifications back from the
-sensors. The service UUID ending in 1623 is LEGO's logical GATT service. The
-characteristic UUID ending in 1624 is the actual data pipe inside that service,
-with Write and Notify properties. It carries LWP3 commands and sensor data. The
-UUIDs identify GATT objects, not RF channels.
-
-This is why the sniffer must be running before the app starts, and why forcing a
-reconnect helps when CONNECT_IND was missed.
+This is a tip of the iceberg.
 -->
-
-
----
-layout: atm-dark
-bg: soft
-panel: true
-dense: true
-deco: none
----
-
-# ADV_IND frame
-
-<div class="atm-sub">The train announces itself before the connection starts</div>
-
-<div class="mt-5">
-  <AnnotatedScreenshot
-    src="/shots/wireshark/ADV_IND.png"
-    alt="Wireshark ADV_IND frame with three highlighted fields"
-    mode="accumulate"
-    :annotations="[
-      {
-        label: '1 · ADV_IND',
-        rect: [2.5, 25.3, 95, 8.1],
-        title: '1. Packet header',
-        value: 'ADV_IND',
-        description: 'oznacza reklamę BLE: pociąg nadaje ją i może przyjąć połączenie.',
-      },
-      {
-        label: '2 · Address',
-        rect: [2.5, 31.8, 95, 8.1],
-        title: '2. Advertising address',
-        value: 'ec:9a:34:ac:d1:84',
-        description: 'to adres nadajnika, który wysłał tę reklamę.',
-      },
-      {
-        label: '3 · LEGO data',
-        rect: [6, 58.7, 90.5, 27.8],
-        title: '3. Manufacturer data',
-        value: '0x0397',
-        description: 'to identyfikator firmy LEGO. Następne bajty należą do danych producenta.',
-      },
-    ]"
-  />
-</div>
-
-<!--
-ADV_IND, 45 seconds.
-
-This is an advertising packet on one of BLE's primary advertising channels.
-Click 1: the PDU type tells us that the train is advertising and can accept a
-connection. Click 2: the advertising address identifies the sender. Click 3:
-the manufacturer data contains LEGO's company ID (0x0397) and vendor-specific
-bytes that help recognise the train before CONNECT_IND appears.
--->
-
----
-layout: atm-dark
-bg: soft
-panel: true
-dense: true
-deco: none
----
-
-# CONNECT_IND frame
-
-<div class="atm-sub">The one-time handoff from advertising to a data connection</div>
-
-<div class="grid grid-cols-2 gap-6 mt-5">
-
-<Shot
-  label="Wireshark frame 3255 — CONNECT_IND"
-  hint="capture frame 3255 · slides/public/captured-packets.pcapng"
-  ratio="16/10"
-/>
-
-<div class="mt-2">
-
-<h3>What this packet carries</h3>
-
-<ul class="mt-4">
-  <li>Data-channel <code>Access Address</code></li>
-  <li>Channel map, connection interval and hop increment</li>
-  <li>The parameters the sniffer needs to follow the link</li>
-</ul>
-
-<div class="atm-note mt-6">
-  Say <strong>BLE link establishment</strong>, not pairing.
-</div>
-
-</div>
-
-</div>
-
-<!--
-CONNECT_IND, 45 seconds.
-
-Use capture frame 3255. The previous slide is frame 3230 (ADV_IND), so these
-two frames make a useful pair: the train first announces itself, then the
-central accepts the advertisement and provides the parameters needed to follow
-the new data connection.
-
-Highlight the data Access Address 0x50655b55, the channel map, the connection
-interval and the hop increment. CONNECT_IND is a one-time BLE link-establishment
-packet, not a pairing message. If the sniffer misses it, it cannot derive the
-subsequent channel-hopping sequence.
--->
-
----
-layout: atm-light
-deco: squares
-dense: true
----
-
-# GATT writes and notifications
-
-<div class="atm-sub">The same characteristic carries commands out and state back</div>
-
-<div class="grid grid-cols-2 gap-5 mt-5">
-
-<Shot
-  label="Wireshark frame 3264 — CCCD write"
-  hint="capture frame 3264 · ATT Write Request · 01 00"
-  ratio="16/10"
-/>
-
-<Shot
-  label="Wireshark frame 3821 — battery notification"
-  hint="capture frame 3821 · ATT Notification · battery 84%"
-  ratio="16/10"
-/>
-
-</div>
-
-<div class="grid grid-cols-2 gap-5 mt-5">
-
-<div class="atm-note">
-  <strong>Write:</strong> the app writes <code>01 00</code> to the CCCD and
-  enables notifications.
-</div>
-
-<div class="atm-note">
-  <strong>Notification:</strong> the train sends a battery update back through
-  characteristic <code>1624</code>.
-</div>
-
-</div>
-
-<!--
-GATT writes and notifications, 60 seconds.
-
-Use frame 3264 for the setup step: the app writes 01 00 to the CCCD at handle
-0x000c, enabling notifications. Frame 3269 is an optional follow-up if the
-slide needs the matching Write Response.
-
-Use frame 3821 for the return path. It is a real ATT Notification carrying an
-LWP3 Hub Properties update for battery voltage, with a value of 84%. Do not
-describe this capture as proof of color or speed notifications: the capture
-notes explicitly say those values were not present in this session.
-
-The durable point is the direction of traffic: GATT writes carry commands from
-the app to the train, while notifications carry state from the train back to
-the app. ATT handles are local to this capture; characteristic UUID 1624 is the
-more useful protocol label.
--->
-
-
----
-layout: atm-light
-deco: squares
-dense: true
----
-
-# Pairing and security
-
-<div class="grid grid-cols-2 gap-8 mt-7">
-
-<div>
-
-<h3>Pairing is optional</h3>
-
-<v-clicks>
-
-- Pairing agrees on keys
-- Bonding stores the keys
-- Encryption protects traffic
-
-</v-clicks>
-
-</div>
-
-<div>
-
-<h3>What BLE can choose</h3>
-
-<v-clicks>
-
-- Just Works: encrypted, no MITM protection
-- No pairing: plaintext and no access control
-
-</v-clicks>
-
-</div>
-
-</div>
-
-<div v-click class="atm-note mt-7">
-For this train, a central can connect and write without a pairing step.
-</div>
-
-<!--
-Pairing and security, 60 seconds.
-
-BLE does not require pairing. Pairing creates keys, bonding remembers them, and
-encryption uses them on the link. Just Works encrypts but does not authenticate
-the other side. With no pairing, ATT traffic is plaintext and the device has no
-owner check. The train accepts a connection without a pairing exchange, which
-explains why a custom client can control it immediately.
--->
-
 
 ---
 layout: atm-dark

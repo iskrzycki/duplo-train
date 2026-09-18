@@ -5,11 +5,13 @@
   Frontmatter knobs:
     deco: chip | squares | hand | ring | corner | none   (default: chip)
     dense: true    lifts the title to 21.7%
+    top: 100       custom content offset in pixels
 -->
 <script setup lang="ts">
 withDefaults(defineProps<{
   deco?: 'chip' | 'squares' | 'hand' | 'ring' | 'corner' | 'none'
   dense?: boolean
+  top?: number
 }>(), { deco: 'chip', dense: false })
 </script>
 
@@ -44,7 +46,11 @@ withDefaults(defineProps<{
     </div>
 
     <div class="atm-slide__body">
-      <div class="atm-content" :class="{ 'atm-content--hi': dense }">
+      <div
+        class="atm-content"
+        :class="{ 'atm-content--hi': dense }"
+        :style="top ? { top: `${top}px` } : undefined"
+      >
         <slot />
       </div>
     </div>
