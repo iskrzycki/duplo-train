@@ -34,9 +34,9 @@
 
       <div v-click="3" class="ble-flow__step">
         <div class="ble-flow__step-no">03</div>
-        <div class="ble-flow__packet ble-flow__packet--both">DATA CHANNELS</div>
+        <div class="ble-flow__packet ble-flow__packet--both">CONNECTED LINK</div>
         <div class="ble-flow__direction">Both devices</div>
-        <div class="ble-flow__detail">Connection events follow a shared hopping sequence</div>
+        <div class="ble-flow__detail">Packets hop across channels 0–36 using a shared sequence</div>
         <code>0–36 · frequency hopping</code>
       </div>
 

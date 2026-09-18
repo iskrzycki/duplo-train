@@ -103,16 +103,6 @@ dense: true
 
 # What the official app does
 
-<div class="atm-sub">A small UI over a BLE connection</div>
-
-<v-clicks>
-
-- Forward, backward and stop at fixed speed presets
-- Toggle through five light colours
-- Toggle through five built-in sounds
-
-</v-clicks>
-
 ::right::
 
 <div class="mt-[128px]">
@@ -203,98 +193,37 @@ that turns the radio traffic into something readable.
 
 ---
 layout: atm-split
-surface: dark
-bg: soft
-panel: soft
-ratio: 0.9fr 1.2fr
-deco: none
----
-
-# The nRF52840 dongle
-
-<div class="atm-sub">A practical over-the-air BLE sniffer</div>
-
-<v-clicks>
-
-- Clear documentation and open tooling
-- Firmware, Wireshark plugins and community tooling
-- Affordable: around $20, depending on the seller
-- For this demo: BLE only. The nRF52840 also supports 802.15.4-based protocols
-
-</v-clicks>
-
-::right::
-
-<div class="mt-[18px] flex justify-center">
-
-<div style="width: 120px">
-  <Shot src="/shots/nrf52840.png" plain />
-</div>
-
-</div>
-
-<!--
-The dongle, 50 seconds.
-
-to be done
--->
-
----
-layout: atm-split
-surface: dark
-bg: bokeh
-panel: true
+surface: light
 ratio: 0.82fr 1.35fr
 dense: true
 deco: none
 ---
 
-# Wireshark
+<h2>nRF52840 dongle</h2>
 
-<div class="atm-sub">An open-source microscope for network traffic</div>
-
-<div class="mt-5">
-
-<v-clicks>
-
-- Free to use and open source under the GPL
-- Industry-standard, cross-platform analyzer
-- Capture live traffic or open saved captures
-- Decode and filter protocols down to individual fields
-
-</v-clicks>
-
+<div class="mt-5 flex h-[430px] items-start justify-center">
+  <div style="width: 140px">
+    <Shot src="/shots/nrf52840.png" plain />
+  </div>
 </div>
 
 ::right::
 
-<div class="mt-[-20px] -mx-8">
+<h2>Wireshark</h2>
 
-<Shot
-  src="/shots/wireshark-gui.png"
-  label="Screenshot — Wireshark GUI"
-  caption="Wireshark shows the packet list, decoded fields and raw bytes together."
-  ratio="16/9"
-  />
-
+<div class="mt-5 flex justify-center">
+  <div style="width: 580px">
+    <Shot
+      src="/shots/wireshark-gui.png"
+      label="Screenshot — Wireshark GUI"
+      ratio="16/9"
+      />
+  </div>
 </div>
 
 <!--
-Wireshark, 50 seconds.
-
-Wireshark is free, open-source software released under the GNU GPL. It is a
-widely used, cross-platform network protocol analyzer: it can capture live
-traffic, open saved captures, decode hundreds of protocols, and filter packets
-down to individual fields. The official documentation describes it as useful
-for troubleshooting, security analysis, QA, protocol development, and learning.
-
-In our case, start the capture, select the train, then open the official app.
-Filter on btatt and look for ATT Write Commands to the LEGO hub characteristic.
-The next slide decodes one of those writes.
-
-Sources:
-https://www.wireshark.org/about
-https://www.wireshark.org/docs/wsug_html_chunked/ChapterIntroduction.html
+The dongle listens to BLE traffic over the air. Wireshark displays and decodes
+the captured packets.
 -->
 
 ---
@@ -312,6 +241,47 @@ Now that we have the tool, we can watch the official app talk to the train.
 We will press one control, find the resulting BLE packet, and then open it
 byte by byte.
 -->
+
+---
+layout: atm-light
+deco: corner
+dense: true
+---
+
+# BLE connection sequence
+
+<BleConnectionDiagram />
+
+<div v-click="5" class="atm-note mt-5">
+Miss <code>CONNECT_IND</code> and the sniffer cannot follow the connection that comes after it.
+</div>
+
+<!--
+How a BLE connection starts, 60 seconds.
+
+01. Advertisement. The train is the peripheral. It periodically broadcasts an
+advertisement on the three primary advertising channels. A phone or script
+scans and recognises the train from its name and manufacturer data.
+
+02. CONNECT_IND. When the central decides to connect, it sends CONNECT_IND
+exactly once. This packet carries the Access Address plus the timing and
+channel-hopping parameters.
+
+03. Connected link. After the handshake, both controllers leave the advertising
+channels. The link now hops across data channels 0–36 using a shared sequence.
+This is the radio path that carries the GATT traffic shown next.
+
+04. GATT / ATT. Only now does the application-level traffic begin: service
+discovery, writes to the LEGO characteristic, and notifications back from the
+sensors. The service UUID ending in 1623 is LEGO's logical GATT service. The
+characteristic UUID ending in 1624 is the actual data pipe inside that service,
+with Write and Notify properties. It carries LWP3 commands and sensor data. The
+UUIDs identify GATT objects, not RF channels.
+
+This is why the sniffer must be running before the app starts, and why forcing a
+reconnect helps when CONNECT_IND was missed.
+-->
+
 
 ---
 layout: atm-dark
@@ -366,45 +336,114 @@ the manufacturer data contains LEGO's company ID (0x0397) and vendor-specific
 bytes that help recognise the train before CONNECT_IND appears.
 -->
 
-
 ---
-layout: atm-light
-deco: corner
+layout: atm-dark
+bg: soft
+panel: true
 dense: true
+deco: none
 ---
 
-# BLE connection sequence
+# CONNECT_IND frame
 
-<BleConnectionDiagram />
+<div class="atm-sub">The one-time handoff from advertising to a data connection</div>
 
-<div v-click="5" class="atm-note mt-5">
-Miss <code>CONNECT_IND</code> and the sniffer cannot follow the connection that comes after it.
+<div class="grid grid-cols-2 gap-6 mt-5">
+
+<Shot
+  label="Wireshark frame 3255 — CONNECT_IND"
+  hint="capture frame 3255 · slides/public/captured-packets.pcapng"
+  ratio="16/10"
+/>
+
+<div class="mt-2">
+
+<h3>What this packet carries</h3>
+
+<ul class="mt-4">
+  <li>Data-channel <code>Access Address</code></li>
+  <li>Channel map, connection interval and hop increment</li>
+  <li>The parameters the sniffer needs to follow the link</li>
+</ul>
+
+<div class="atm-note mt-6">
+  Say <strong>BLE link establishment</strong>, not pairing.
+</div>
+
+</div>
+
 </div>
 
 <!--
-How a BLE connection starts, 60 seconds.
+CONNECT_IND, 45 seconds.
 
-01. Advertisement. The train is the peripheral. It periodically broadcasts an
-advertisement on the three primary advertising channels. A phone or script
-scans and recognises the train from its name and manufacturer data.
+Use capture frame 3255. The previous slide is frame 3230 (ADV_IND), so these
+two frames make a useful pair: the train first announces itself, then the
+central accepts the advertisement and provides the parameters needed to follow
+the new data connection.
 
-02. CONNECT_IND. When the central decides to connect, it sends CONNECT_IND
-exactly once. This packet carries the Access Address plus the timing and
-channel-hopping parameters.
+Highlight the data Access Address 0x50655b55, the channel map, the connection
+interval and the hop increment. CONNECT_IND is a one-time BLE link-establishment
+packet, not a pairing message. If the sniffer misses it, it cannot derive the
+subsequent channel-hopping sequence.
+-->
 
-03. Data channels. After the handshake, both controllers leave the advertising
-channels and meet on the data channels according to the shared hopping
-sequence.
+---
+layout: atm-light
+deco: squares
+dense: true
+---
 
-04. GATT / ATT. Only now does the application-level traffic begin: service
-discovery, writes to the LEGO characteristic, and notifications back from the
-sensors. The service UUID ending in 1623 is LEGO's logical GATT service. The
-characteristic UUID ending in 1624 is the actual data pipe inside that service,
-with Write and Notify properties. It carries LWP3 commands and sensor data. The
-UUIDs identify GATT objects, not RF channels.
+# GATT writes and notifications
 
-This is why the sniffer must be running before the app starts, and why forcing a
-reconnect helps when CONNECT_IND was missed.
+<div class="atm-sub">The same characteristic carries commands out and state back</div>
+
+<div class="grid grid-cols-2 gap-5 mt-5">
+
+<Shot
+  label="Wireshark frame 3264 — CCCD write"
+  hint="capture frame 3264 · ATT Write Request · 01 00"
+  ratio="16/10"
+/>
+
+<Shot
+  label="Wireshark frame 3821 — battery notification"
+  hint="capture frame 3821 · ATT Notification · battery 84%"
+  ratio="16/10"
+/>
+
+</div>
+
+<div class="grid grid-cols-2 gap-5 mt-5">
+
+<div class="atm-note">
+  <strong>Write:</strong> the app writes <code>01 00</code> to the CCCD and
+  enables notifications.
+</div>
+
+<div class="atm-note">
+  <strong>Notification:</strong> the train sends a battery update back through
+  characteristic <code>1624</code>.
+</div>
+
+</div>
+
+<!--
+GATT writes and notifications, 60 seconds.
+
+Use frame 3264 for the setup step: the app writes 01 00 to the CCCD at handle
+0x000c, enabling notifications. Frame 3269 is an optional follow-up if the
+slide needs the matching Write Response.
+
+Use frame 3821 for the return path. It is a real ATT Notification carrying an
+LWP3 Hub Properties update for battery voltage, with a value of 84%. Do not
+describe this capture as proof of color or speed notifications: the capture
+notes explicitly say those values were not present in this session.
+
+The durable point is the direction of traffic: GATT writes carry commands from
+the app to the train, while notifications carry state from the train back to
+the app. ATT handles are local to this capture; characteristic UUID 1624 is the
+more useful protocol label.
 -->
 
 
