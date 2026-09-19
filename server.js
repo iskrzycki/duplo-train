@@ -56,6 +56,16 @@ const MELODIES = {
       [3, 240], [5, 240], [null, 240], [9, 960], [1, 700],
     ],
   },
+  atDoomsGate: { // Tone approximation for speaker testing; not an exact soundtrack transcription.
+    label: "At Doom's Gate (approx.)",
+    steps: [
+      [9, 180], [9, 180], [5, 180], [null, 100],
+      [9, 180], [9, 180], [3, 180], [null, 100],
+      [5, 240], [3, 180], [1, 420], [null, 160],
+      [9, 180], [9, 180], [5, 180], [null, 100],
+      [3, 240], [1, 180], [1, 620],
+    ],
+  },
 };
 
 // The 11 palette colors as RGB, for mapping picker colors to the nearest

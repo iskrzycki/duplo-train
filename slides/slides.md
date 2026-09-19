@@ -105,7 +105,7 @@ dense: true
 
 ::right::
 
-<div class="mt-[128px]">
+<div class="mt-[24px]">
 
 <Shot
   src="/shots/duplo-app.png"
@@ -217,6 +217,7 @@ deco: none
       src="/shots/wireshark-gui.png"
       label="Screenshot — Wireshark GUI"
       ratio="16/9"
+      plain
       />
   </div>
 </div>
@@ -357,53 +358,6 @@ signed power +100. Zero stops; a negative signed byte reverses the train.
 
 
 ---
-layout: atm-split
-surface: light
-deco: chip
-ratio: 1fr 1.15fr
-dense: true
----
-
-# Sniffing the official app
-
-<div class="atm-sub">The app uses the same GATT pipe</div>
-
-<div class="grid grid-cols-2 gap-4 mt-5">
-
-<Shot label="Screenshot — official app GATT capture" hint="public/shots/official-app-gatt.png" ratio="16/9" />
-<Shot label="Screenshot — GATT detail" hint="public/shots/official-app-gatt-detail.png" ratio="16/9" />
-
-</div>
-
-<div class="atm-note mt-5">
-<strong>Sample:</strong> App speed button / ATT Write / LWP3 <code>0x81</code> / motor port
-</div>
-
-::right::
-
-<div class="mt-[156px]">
-
-<h3>What the capture tells us</h3>
-
-<ul class="mt-4">
-  <li>The official app writes to characteristic <code>1624</code></li>
-  <li>The payload carries the port and command mode</li>
-  <li>Sensor values return as notifications</li>
-</ul>
-
-</div>
-
-<!--
-The official app capture, 65 seconds.
-
-These screenshots are placeholders for the official-app GATT capture. The
-thing to point out is the same characteristic and the same LWP3 payload shape.
-The app is a thin client. It chooses a few safe commands, while the hub
-already understands more ports, sensor modes, tones and LED values.
--->
-
-
----
 layout: atm-statement
 bg: bokeh
 align: center
@@ -413,7 +367,8 @@ align: center
 
 <v-click>
 
-<div class="atm-lead"><strong>Yes.</strong> A BLE GATT client is enough.</div>
+<div class="atm-lead"><strong>Yes.</strong> There is a JavaScript library for that.</div>
+<div class="atm-sub mt-5"><code>node-poweredup</code> · scan · connect · ports · sensors · LWP3</div>
 
 </v-click>
 
@@ -424,23 +379,6 @@ The train does not require the LEGO app. Any central that can discover the
 service, write the hub characteristic, and subscribe to notifications can be
 the controller. The protocol work is now reduced to a normal BLE client.
 -->
-
-
----
-layout: atm-statement
-bg: orb
-align: center
----
-
-# There is a JS library for that
-
-<v-click>
-
-<div class="atm-lead"><code>node-poweredup</code></div>
-
-<div class="atm-sub mt-5">Scan · connect · ports · sensors · LWP3</div>
-
-</v-click>
 
 <!--
 The library, 40 seconds.
@@ -455,36 +393,26 @@ tool for understanding what the API sends. The library is by Nathan Kellenicki.
 layout: atm-light
 deco: chip
 dense: true
+clicks: 4
+clicksStart: 1
 ---
 
 # Code samples
 
-<div class="atm-code-intro">
-  <div class="atm-lead">Three small pieces make the integration work</div>
-  <div class="atm-sub mt-4">Connection, sensor events, and a motor driver</div>
+<div class="atm-code-tabs">
+
+<v-switch>
+
+<template #1>
+
+<div class="atm-code-tabs__tabs">
+  <span class="atm-code-tabs__tab atm-code-tabs__tab--active">CONNECTION</span>
+  <span class="atm-code-tabs__tab">SENSOR EVENTS</span>
+  <span class="atm-code-tabs__tab">ENGINE SETUP</span>
+  <span class="atm-code-tabs__tab">LIGHTS</span>
 </div>
 
-<!--
-Code samples, 10 seconds.
-
-The next three slides show the small pieces that matter. The connection is
-ordinary BLE discovery and GATT connection. The library emits sensor events from
-notifications. The one non-obvious part is the motor driver:
-the DUPLO base cuts a one-off power command after roughly 200 ms when it does
-not detect wheel movement, so the code keeps refreshing non-zero power. That
-is also what the official app does.
--->
-
----
-layout: atm-light
-deco: chip
-dense: true
----
-
-# Connection
-
-<div class="atm-code-slide">
-
+<div class="atm-code-tabs__panel">
 <div class="atm-sub">Discover a hub, connect, and start scanning</div>
 
 ```js
@@ -499,21 +427,18 @@ poweredUP.scan()
 
 </div>
 
-<!--
-The library wraps the BLE scan and GATT connection. Once a hub is discovered,
-the application connects and can start working with its ports and sensors.
--->
+</template>
 
----
-layout: atm-light
-deco: chip
-dense: true
----
+<template #2>
 
-# Sensor events
+<div class="atm-code-tabs__tabs">
+  <span class="atm-code-tabs__tab">CONNECTION</span>
+  <span class="atm-code-tabs__tab atm-code-tabs__tab--active">SENSOR EVENTS</span>
+  <span class="atm-code-tabs__tab">ENGINE SETUP</span>
+  <span class="atm-code-tabs__tab">LIGHTS</span>
+</div>
 
-<div class="atm-code-slide">
-
+<div class="atm-code-tabs__panel">
 <div class="atm-sub">Read motion and battery updates from notifications</div>
 
 ```js
@@ -528,21 +453,18 @@ hub.on('batteryLevel', data => {
 
 </div>
 
-<!--
-The library turns BLE notifications into ordinary JavaScript events. The app
-can listen for speedometer and battery changes without decoding packets itself.
--->
+</template>
 
----
-layout: atm-light
-deco: chip
-dense: true
----
+<template #3>
 
-# Engine setup
+<div class="atm-code-tabs__tabs">
+  <span class="atm-code-tabs__tab">CONNECTION</span>
+  <span class="atm-code-tabs__tab">SENSOR EVENTS</span>
+  <span class="atm-code-tabs__tab atm-code-tabs__tab--active">ENGINE SETUP</span>
+  <span class="atm-code-tabs__tab">LIGHTS</span>
+</div>
 
-<div class="atm-code-slide">
-
+<div class="atm-code-tabs__panel">
 <div class="atm-sub">Find the motor and keep its power command alive</div>
 
 ```js
@@ -555,16 +477,67 @@ driver.set(45)
 driver.stop()
 ```
 
-<div class="atm-note mt-6">
+<div class="atm-note mt-3">
 The driver re-sends non-zero power every 100 ms. The hub's motion watchdog stops one-off commands.
 </div>
 
 </div>
 
+</template>
+
+<template #4>
+
+<div class="atm-code-tabs__tabs">
+  <span class="atm-code-tabs__tab">CONNECTION</span>
+  <span class="atm-code-tabs__tab">SENSOR EVENTS</span>
+  <span class="atm-code-tabs__tab">ENGINE SETUP</span>
+  <span class="atm-code-tabs__tab atm-code-tabs__tab--active">LIGHTS</span>
+</div>
+
+<div class="atm-code-tabs__panel">
+<div class="atm-sub">Turn an RGB request into a color the train understands</div>
+
+```js
+const led = await hub
+  .waitForDeviceByType(HUB_LED)
+
+const requestedRgb = '#ff2a00'
+const paletteColor = nearestLegoColor(requestedRgb)
+
+await led.setColor(paletteColor)
+```
+
+<div class="atm-note mt-3">
+The DUPLO LED accepts palette values, not arbitrary RGB. The app maps the requested color to the closest of 11 colors.
+</div>
+
+<div class="atm-caption mt-2">
+  Palette reference:
+  <a href="https://lego.github.io/lego-ble-wireless-protocol-docs/#output-sub-command-setrgbcolorno-colorno-n-a" target="_blank" rel="noreferrer">
+    LEGO BLE protocol docs · SetRgbColorNo
+  </a>
+</div>
+
+</div>
+
+</template>
+
+</v-switch>
+
+</div>
+
 <!--
-The DUPLO base cuts a one-off power command after roughly 200 ms when it does
-not detect wheel movement. The driver keeps refreshing non-zero power, which is
-also what the official app does.
+Code samples, 35 seconds total.
+
+The tabs keep four code fragments on one slide. Advance through the connection,
+sensor events, engine setup and lights examples. The lights example is useful
+because it turns a familiar RGB picker into a protocol detail: this DUPLO LED
+accepts a small palette, not arbitrary RGB. The connection is ordinary BLE
+discovery and GATT connection. The library turns notifications into JavaScript
+events. The non-obvious part is the motor driver: the DUPLO base cuts a one-off
+power command after roughly 200 ms when it does not detect wheel movement, so
+the driver keeps refreshing non-zero power. That is also what the official app
+does.
 -->
 
 
@@ -613,10 +586,11 @@ deco: none
 
 ::right::
 
-<div class="mt-[104px] grid grid-cols-2 gap-4">
+<div class="mt-0 flex justify-center">
 
-<Shot label="Screenshot — final web app" hint="public/shots/panel.png" ratio="16/9" />
-<Shot label="Video — train in motion" hint="public/shots/demo.mp4" ratio="16/9" />
+<div style="width: 520px">
+  <Shot src="/shots/poweredup-app.png" caption="Screenshot — final web app" plain />
+</div>
 
 </div>
 
@@ -708,4 +682,33 @@ from the beginning each time.
 
 Implementation references: https://sli.dev/builtin/components.html and
 https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs
+-->
+
+
+---
+layout: atm-end
+---
+
+# Thank you!
+
+<div class="atm-lead">Don’t hesitate to explore.</div>
+
+<div class="mt-8 flex flex-col gap-3" style="font-size: 24px;">
+  <a href="https://github.com/iskrzycki/duplo-train" target="_blank" rel="noreferrer">
+    github.com/iskrzycki/duplo-train
+  </a>
+  <a href="https://github.com/nathankellenicki/node-poweredup" target="_blank" rel="noreferrer">
+    github.com/nathankellenicki/node-poweredup
+  </a>
+  <a href="https://lego.github.io/lego-ble-wireless-protocol-docs/" target="_blank" rel="noreferrer">
+    LEGO BLE Wireless Protocol Docs
+  </a>
+</div>
+
+<!--
+Closing, 20 seconds.
+
+Thank the audience, then leave the project and protocol links on screen for
+photos. The final line is the invitation: once the protocol is visible, it is
+worth exploring what else the device can do.
 -->

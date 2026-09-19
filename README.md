@@ -125,7 +125,7 @@ client → server   {type:"cmd", action:"led", color:0…10}
 client → server   {type:"cmd", action:"sound", name:"HORN"|"STATION_DEPARTURE"|"WATER_REFILL"|"STEAM"|"BRAKE"}
 client → server   {type:"cmd", action:"tone", value:0…255}
 client → server   {type:"cmd", action:"soundRaw", value:0…255}
-client → server   {type:"cmd", action:"melody", name:"jingle"|"starwars"|"mario"}
+client → server   {type:"cmd", action:"melody", name:"jingle"|"starwars"|"mario"|"atDoomsGate"}
 client → server   {type:"cmd", action:"ledRgb", hex:"#rrggbb"}
 client → server   {type:"cmd", action:"effect", name:"police"|"crossing"|"rainbow"|"disco"|"firebox"|"none"}
 ```

@@ -52,6 +52,7 @@ const MELODY_BUTTONS = [
   { name: "jingle", label: "Jingle", emoji: "🎵" },
   { name: "starwars", label: "Star Wars", emoji: "⭐" },
   { name: "mario", label: "Mario", emoji: "🍄" },
+  { name: "atDoomsGate", label: "At Doom's Gate", emoji: "🤘" },
 ];
 
 /* ─────────────────────────── building blocks ─────────────────────────── */
@@ -294,7 +295,7 @@ function FunCard({ train, ready, send }) {
             key={melody.name}
             className="brick-btn brick-green beep-btn jingle-btn"
             disabled={!ready}
-            title="A little playTone melody"
+            title={melody.name === "atDoomsGate" ? "Tone approximation for the train speaker" : "A little playTone melody"}
             onClick={() => send({ type: "cmd", action: "melody", name: melody.name })}
           >
             {melody.emoji} {melody.label}

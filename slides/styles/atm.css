@@ -137,6 +137,39 @@
 .atm-code-slide .atm-note {
   max-width: 72%;
 }
+.atm-code-tabs {
+  margin-top: 0.7em;
+  max-width: 92%;
+}
+.atm-code-tabs__tabs {
+  display: flex;
+  gap: 0.35em;
+  border-bottom: 2px solid color-mix(in srgb, var(--atm-orange) 35%, transparent);
+}
+.atm-code-tabs__tab {
+  padding: 0.65em 1em 0.55em;
+  color: var(--atm-ink-muted);
+  font-size: var(--atm-fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.atm-code-tabs__tab--active {
+  color: var(--atm-orange);
+  border-bottom: 4px solid var(--atm-orange);
+}
+.atm-code-tabs__panel {
+  padding-top: 1.3em;
+}
+.atm-code-tabs__panel .slidev-code {
+  margin-top: 1.1em;
+  border-color: var(--atm-orange);
+  background: color-mix(in srgb, var(--atm-orange) 22%, transparent);
+  font-size: 20px;
+  line-height: 1.4;
+}
+.atm-code-tabs__panel .atm-note {
+  max-width: 88%;
+}
 
 /* Footnote band, bottom-left, clear of the logo. */
 /*
