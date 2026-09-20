@@ -48,32 +48,21 @@ Rafał Iskrzycki · Allegro Tech Meeting #19
 Opening, ~1min
 
 
-
-
-
-
-Bluetooth surrounds us, so let's get familiar with it, with the help of this little thing (Lego train).
-
-Why on Earth am I telling you about this? Because it's everywhere. (BT stats live ?) - show some numbers?
-
-
-
-
-[or maybe this one]: 
-
-Today we will try to see the thing that is invisible. The thing that everyone uses on a daily basis, but most of our time we don't think how and why it works.
-
-
-
-I'm Rafał and I've been working as a software engineer in Allegro for the past five years, mainly on MBox related stuff. 
-
 _____
-
-
-
 
 You may recognise the situation when you get a new device and are just thinking, „How the hell does this work?"
 
+I'm Rafał and I've been working as a software engineer in Allegro for the past five years, mainly on MBox related stuff.
+
+Today we will try to see the thing that is invisible. The thing that everyone uses on a daily basis, but most of our time we don't think how and why it works.
+
+TODO: Add something about magic/technology here?  (albo I'll be your guide)
+
+
+____ NOTES:
+
+Bluetooth surrounds us, so let's get familiar with it, with the help of this little thing (Lego train).
+Why on Earth am I telling you about this? Because it's everywhere. (BT stats live ?) - show some numbers?
 I went back to the box to see if I missed something and noticed there’s an app so, I downloaded it.
 -->
 
@@ -166,11 +155,11 @@ Bluetooth versus BLE, 55 seconds.
 
 Regards Bluetooth, we need to clarify one thing. Bluetooth technology splits into two, very different protocols.
 
-Classic Bluetooth is built for an open stream such as audio. It's like a virtual wire. Examples: headphones, keyboards, game pads etc. 
+Classic Bluetooth is built for an open stream such as audio. It's like a virtual wire. Some examples from our daily use: headphones, keyboards, game pads etc. 
+On the other hand, BLE is designed for sending small, occasional messages. Some examples: smartbands, toys, sensors.
 
-on the other hand, BLE is built for small, occasional messages and exposes data through GATT which means...... generit attributes. Examples: smartbands, toys, sensors.
+Both use 2.4 GHz frequency, but it's the only common thing they share.
 
-Both use 2.4 GHz frequency, but they are using it differently [?] ....
 -->
 
 ---
@@ -184,10 +173,9 @@ layout: atm-section
 <!--
 The transition, 25 seconds.
 
-The connection is invisible in the app, but it is happening over the air.
-To understand what the train and the phone exchange, we need a way to listen
-before we can interpret the packets. First comes the sniffer, then the tool
-that turns the radio traffic into something readable.
+To understand what the train and the phone exchange, we need a way to listen the communication between them.
+Let's get familiar with the tools that we need to sniff a BLE communication.
+
 -->
 
 
@@ -197,34 +185,62 @@ surface: light
 ratio: 0.82fr 1.35fr
 dense: true
 deco: none
+clicks: 2
 ---
 
-<h2>nRF52840 dongle</h2>
+<div class="atm-reveal-stack">
+  <div v-click.hide="1" class="atm-reveal-card atm-reveal-placeholder">
+    <div class="atm-reveal-placeholder__question">?</div>
+    <h2>Hardware</h2>
+  </div>
 
-<div class="mt-5 flex h-[430px] items-start justify-center">
-  <div style="width: 140px">
-    <Shot src="/shots/nrf52840.png" plain />
+  <div v-click="1" class="atm-reveal-card atm-reveal-content">
+    <h2>nRF52840 dongle</h2>
+    <div class="mt-5 flex items-start justify-center">
+      <div style="width: 140px">
+        <Shot src="/shots/nrf52840.png" plain />
+      </div>
+    </div>
   </div>
 </div>
 
 ::right::
 
-<h2>Wireshark</h2>
+<div class="atm-reveal-stack">
+  <div v-click.hide="2" class="atm-reveal-card atm-reveal-placeholder">
+    <div class="atm-reveal-placeholder__question">?</div>
+    <h2>Software</h2>
+  </div>
 
-<div class="mt-5 flex justify-center">
-  <div style="width: 580px">
-    <Shot
-      src="/shots/wireshark-gui.png"
-      label="Screenshot — Wireshark GUI"
-      ratio="16/9"
-      plain
-      />
+  <div v-click="2" class="atm-reveal-card atm-reveal-content">
+    <h2>Wireshark</h2>
+    <div class="mt-5 flex justify-center">
+      <div style="width: 580px">
+        <Shot
+          src="/shots/wireshark-gui.png"
+          label="Screenshot — Wireshark GUI"
+          ratio="16/9"
+          plain
+          />
+      </div>
+    </div>
   </div>
 </div>
 
 <!--
-The dongle listens to BLE traffic over the air. Wireshark displays and decodes
-the captured packets.
+
+There are many approaches to sniffing BLE packets. For sure, some hardware and software is needed. 
+
+
+On the left, you can see a Nordic semiconductor USB dongle with a fancy name that you can see in the header.
+This is a microcontroller that can be flashed with a program that allows us to sniff BLE packets. It supports also protocols known from iot like ZigBee or Thread.
+It costs about 20 bucks and the manufacturer gives us a lot of useful docs and software.
+
+When it comes to the software, most of you guys probably used it at least once. Wireshark will be our tool for exploring sniffed packets. 
+It allows us to record transmission and explore it offline, which I found very handy.
+It's open source, industry standard.
+
+
 -->
 
 ---
@@ -238,9 +254,8 @@ layout: atm-section
 <!--
 Transition, 15 seconds.
 
-Now that we have the tool, we can watch the official app talk to the train.
-We will press one control, find the resulting BLE packet, and then open it
-byte by byte.
+Now that we have the tools, we can watch the mobile app talk to the train.
+
 -->
 
 ---
@@ -295,13 +310,14 @@ clicksStart: 1
 <!--
 How a BLE connection starts.
 
-The compact sequence stays visible at the top. With each click, switch the
-lower Wireshark view: ADV_IND, CONNECT_IND, GATT traffic, and a notification.
-The small transition tiles stay static between the main steps.
 
+First packet that I found interesting is ADV_IND that is being sent from the train. It's a kind of advertisement: "Heey, I'm in your range, I'm ready to connect, I support these BLE features..."
+Second one, CONNECT_IND is sent by an app and this is a request to connect to the train. It setups essential parameters of the connection (interval, channel hoping algorythm etc)
+The last, and the most important from our perspective is a regular GATT command that can be sent either from the app (like request for turn on the train light), or from the train (like speedometer notification)
 
+Between mentioned packets, there may be dozens other packets that provides some details about devices or connection - they are very interesting too, but it's definitely outside the scope of this presentation. 
+I'm showing you a tip of the iceberg.  
 
-This is a tip of the iceberg.
 -->
 
 ---
@@ -349,11 +365,11 @@ deco: none
 <!--
 The first decoded write, 75 seconds.
 
-This is the LEGO Wireless Protocol 3 frame inside the GATT write. The service
-and characteristic are vendor-specific UUIDs. The characteristic is a single
-pipe for commands and notifications. In this example 0x81 is Port Output
-Command, 0x00 is the motor port, 0x51 writes direct mode data, and 0x64 is
-signed power +100. Zero stops; a negative signed byte reverses the train.
+Let's look at sample GATT write:
+
+TODO....
+
+
 -->
 
 
@@ -375,9 +391,14 @@ align: center
 <!--
 The question, 25 seconds.
 
-The train does not require the LEGO app. Any central that can discover the
-service, write the hub characteristic, and subscribe to notifications can be
-the controller. The protocol work is now reduced to a normal BLE client.
+After I spend few days with the train and the official app, I asked a question to myself - Can I build my own app?
+I was no experience with writing software that manages BT connection so I thought it will be a a lot of fun and a cool way of learning something new.
+
+
+After some googling, I found that (of course!) there is a JS library that can help me with this challange.
+It's called node-poweredup. Let's see some code samples
+
+
 -->
 
 <!--

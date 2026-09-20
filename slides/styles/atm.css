@@ -328,6 +328,37 @@
 .slidev-vclick-target { transition: opacity 260ms ease, transform 260ms ease; }
 .slidev-vclick-hidden { opacity: 0; transform: translateY(4px); }
 
+/* Two-step reveal on the BLE tooling slide. */
+.atm-reveal-stack {
+  position: relative;
+  min-height: 430px;
+}
+.atm-reveal-card {
+  position: absolute;
+  inset: 0;
+}
+.atm-reveal-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.025);
+}
+.atm-reveal-placeholder__question {
+  color: var(--atm-orange);
+  font-size: 112px;
+  font-weight: 300;
+  line-height: 0.9;
+}
+.atm-reveal-placeholder h2 {
+  margin-top: 0.55em;
+  color: var(--atm-ink);
+  font-size: var(--atm-fs-body);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
 /* Compact packet sequence with one changing Wireshark view below it. */
 .connection-screenshot {
   position: relative;
