@@ -206,20 +206,6 @@ body {
   padding: 0;
 }
 
-.rgb-picker {
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  background: conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
-  cursor: pointer;
-}
-.rgb-picker input {
-  position: absolute; inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-.rgb-picker input:disabled { cursor: not-allowed; }
-
 .effect-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
 
 .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }

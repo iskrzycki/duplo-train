@@ -45,25 +45,15 @@ layout: atm-cover
 Rafał Iskrzycki · Allegro Tech Meeting #19
 
 <!--
-Opening, ~1min
+Opening, ~45 seconds
 
+Most gadgets feel like magic because we only see the result.
+You press a button and something happens, while the interesting part stays invisible.
 
-_____
+This train made me curious. What happens between pressing the button and seeing it move?
+So I decided to find out.
 
-You may recognise the situation when you get a new device and are just thinking, „How the hell does this work?"
-
-I'm Rafał and I've been working as a software engineer in Allegro for the past five years, mainly on MBox related stuff.
-
-Today we will try to see the thing that is invisible. The thing that everyone uses on a daily basis, but most of our time we don't think how and why it works.
-
-TODO: Add something about magic/technology here?  (albo I'll be your guide)
-
-
-____ NOTES:
-
-Bluetooth surrounds us, so let's get familiar with it, with the help of this little thing (Lego train).
-Why on Earth am I telling you about this? Because it's everywhere. (BT stats live ?) - show some numbers?
-I went back to the box to see if I missed something and noticed there’s an app so, I downloaded it.
+I'm Rafał, a software engineer at Allegro.
 -->
 
 ---
@@ -72,14 +62,16 @@ photo: /shots/Duplo-Steam-Train-by-Lego-transparent.png
 ---
 
 <!--
-The box, 35 seconds.
+The train, 35 seconds.
 
-Everything started last christmas, when my son got a very nice gift - a steam train Duplo set. He was a way too young to play with it so as a good father, I had to support him.
+Everything started with a Christmas present: a LEGO DUPLO steam train for my son.
 
-The train works "out of the box" - you just need to turn the train ON, and push it gently - it will run with fixed speed and will react to colorful tiles that you can place on the tracks
+He was still a little too young to play with it on his own, so naturally, I had to test it for him.
 
+Out of the box, it was very simple. Turn it on, give it a gentle push, and the colored tiles on the track trigger different actions.
 
-But after a few days I realized, that the train has a second mode which requires an official app (as you may noticed at the bottom of the box). I decided to install the app and check what else the train can do.
+Then I noticed that it also worked with an app.
+So I installed it to see what else the train could do.
 -->
 
 ---
@@ -106,17 +98,16 @@ dense: true
 </div>
 
 <!--
-The app, 50 seconds.
+The app, 40 seconds.
 
-The app has a lovely animation upon startup, but then, it offers just a few videos and the control pane for our train. The control UI looks like this and it's very limited:
-if offers going forward and backward, stopping the engine,
-plays 5 sounds and has 5 light colors in a toggle mode. So you cannot even choose the one that you want.
+The official app keeps things simple.
 
-It's reasonable - the app was made for kids, so it has to be as simple as possible.
+You can move the train forward or backward, stop it, play a few sounds, and change the light.
 
-But, this screen has proved something important for me - there are some commands going over the air between app and the train.
+That makes perfect sense for a children's toy.
+But every tap on this screen must become some kind of message sent to the train.
 
-This leads us to the Bluetooth technology.
+So my next question was simple: what does the app actually send?
 -->
 
 ---
@@ -150,16 +141,16 @@ dense: true
 </div>
 
 <!--
-Bluetooth versus BLE, 55 seconds.
+Bluetooth versus BLE, 45 seconds.
 
+Before looking for that message, one distinction matters.
 
-Regards Bluetooth, we need to clarify one thing. Bluetooth technology splits into two, very different protocols.
+Bluetooth is one brand name covering two quite different protocol stacks.
 
-Classic Bluetooth is built for an open stream such as audio. It's like a virtual wire. Some examples from our daily use: headphones, keyboards, game pads etc. 
-On the other hand, BLE is designed for sending small, occasional messages. Some examples: smartbands, toys, sensors.
+Bluetooth Classic works well when data needs to flow continuously, like audio.
+Bluetooth Low Energy is designed for short exchanges and can sleep between them, which makes it a good fit for sensors, trackers, and toys.
 
-Both use 2.4 GHz frequency, but it's the only common thing they share.
-
+The train uses Bluetooth Low Energy, or BLE.
 -->
 
 ---
@@ -171,11 +162,12 @@ layout: atm-section
 <div class="atm-lead">What it takes to listen to BLE packets</div>
 
 <!--
-The transition, 25 seconds.
+The transition, 15 seconds.
 
-To understand what the train and the phone exchange, we need a way to listen the communication between them.
-Let's get familiar with the tools that we need to sniff a BLE communication.
+Knowing that messages exist is one thing.
+Seeing them is another.
 
+I needed one tool to capture the packets and another to inspect them.
 -->
 
 
@@ -228,19 +220,22 @@ clicks: 2
 </div>
 
 <!--
+The tools, 55 seconds.
 
-There are many approaches to sniffing BLE packets. For sure, some hardware and software is needed. 
+The setup was surprisingly small.
 
+First, the hardware: an nRF52840 USB dongle.
+I flashed it with Nordic's BLE sniffer firmware, which lets it capture packets over the air.
 
-On the left, you can see a Nordic semiconductor USB dongle with a fancy name that you can see in the header.
-This is a microcontroller that can be flashed with a program that allows us to sniff BLE packets. It supports also protocols known from iot like ZigBee or Thread.
-It costs about 20 bucks and the manufacturer gives us a lot of useful docs and software.
+The dongle does not connect to the train. It only listens.
+But once the connection starts, BLE hops between radio channels.
+The sniffer must catch the initial connection request to know what to follow.
 
-When it comes to the software, most of you guys probably used it at least once. Wireshark will be our tool for exploring sniffed packets. 
-It allows us to record transmission and explore it offline, which I found very handy.
-It's open source, industry standard.
+Then, the software: Wireshark.
+It lets me record the traffic and inspect each packet layer by layer.
 
-
+The dongle listens.
+Wireshark helps me make sense of what it hears.
 -->
 
 ---
@@ -252,10 +247,11 @@ layout: atm-section
 <div class="atm-lead">From a button press to the packets behind it</div>
 
 <!--
-Transition, 15 seconds.
+Transition, 10 seconds.
 
-Now that we have the tools, we can watch the mobile app talk to the train.
+Now I could press a button in the official app and watch what happened over the air.
 
+Let's follow one interaction from discovering the train to the command that moves it.
 -->
 
 ---
@@ -292,32 +288,48 @@ clicksStart: 1
 
   <div v-click="[3, 4]" class="connection-screenshot__state">
     <Shot
-      label="Wireshark frame 3264 — GATT / ATT"
-      hint="CCCD write · add screenshot here"
+      src="/shots/wireshark/GATT_ENGINE.png"
+      label="Wireshark frame 3619 — motor command"
       ratio="16/7"
       />
   </div>
 
   <div v-click="4" class="connection-screenshot__state">
     <Shot
+      src="/shots/wireshark/GATT_BATTERY.png"
       label="Wireshark frame 3821 — notification"
-      hint="battery notification · add screenshot here"
       ratio="16/7"
       />
   </div>
 </div>
 
 <!--
-How a BLE connection starts.
+BLE connection sequence, ~2 minutes.
 
+This is a simplified view of the exchange.
 
-First packet that I found interesting is ADV_IND that is being sent from the train. It's a kind of advertisement: "Heey, I'm in your range, I'm ready to connect, I support these BLE features..."
-Second one, CONNECT_IND is sent by an app and this is a request to connect to the train. It setups essential parameters of the connection (interval, channel hoping algorythm etc)
-The last, and the most important from our perspective is a regular GATT command that can be sent either from the app (like request for turn on the train light), or from the train (like speedometer notification)
+First, the train sends advertisements.
+In effect, it is announcing: "I'm here, and I'm available."
 
-Between mentioned packets, there may be dozens other packets that provides some details about devices or connection - they are very interesting too, but it's definitely outside the scope of this presentation. 
-I'm showing you a tip of the iceberg.  
+The advertisement already contains useful clues: the name "Train Base", LEGO's manufacturer ID, and the LEGO service UUID.
+The app can recognize the train before it connects.
 
+When the phone decides to connect, it sends CONNECT_IND.
+This packet establishes the radio link and provides the parameters the two devices will use for the connection.
+It is not the same as pairing, and this particular capture was not encrypted.
+
+Once the link is ready, the app writes to the train's GATT characteristic.
+Here, one tap in the app becomes a short command telling the motor what to do.
+
+The GATT value contains LEGO's own protocol, called LWP3.
+On the next slide, we'll open this write and see that the motor command is only eight bytes long.
+
+The traffic also goes the other way.
+The train can send notifications back, for example with its battery level.
+
+In this capture, the battery notification contained the value 0x54, which represents 84 percent.
+
+There are many setup packets in between, but these four moments are enough to understand the exchange.
 -->
 
 ---
@@ -330,48 +342,168 @@ deco: none
 
 # One click, one GATT write
 
-<div class="grid grid-cols-2 gap-5 mt-4">
+<div class="grid grid-cols-2 gap-5 mt-0">
 
-<Shot label="Screenshot — ATT Write expanded" hint="public/shots/wireshark-detail.png" ratio="16/9" />
+<Shot
+  src="/shots/wireshark/GATT_ENGINE.png"
+  label="Wireshark frame 3619 — ATT Write expanded"
+  ratio="16/9"
+  />
 
 <div class="atm-gatt-spec">
 
-<h3>GATT specification</h3>
+<h3>App → train</h3>
 
-<div class="atm-caption">Service</div>
-<code>00001623-1212-EFDE-1623-785FEABCD123</code>
+<div class="atm-caption">ATT operation</div>
+<code>Write Request (0x12)</code>
 
-<div class="atm-caption mt-3">Characteristic</div>
-<code>00001624-1212-EFDE-1623-785FEABCD123</code>
+<div class="atm-caption mt-3">Characteristic handle</div>
+<code>0x000b</code>
 
-<div class="atm-caption mt-3">Properties</div>
-<strong>Write</strong> commands · <strong>Notify</strong> sensor data
-
-</div>
+<div class="atm-caption mt-3">LWP3 message</div>
+<code>0x81 · Port Output Command</code>
 
 </div>
 
-<div v-click class="mt-5">
+</div>
+
+<div v-click class="mt-2">
+
+<h3 style="margin-bottom: 8px;">Decoded value</h3>
 
 <PacketBytes
-  :bytes="[['08','length'],['00','hub'],['81','message'],['00','motor'],['11','flags'],['51','write direct'],['00','power'],['64','+100']]"
+  :bytes="[['08','length'],['00','hub'],['81','message'],['00','motor'],['11','flags'],['51','write direct'],['00','power'],['45','+69']]"
   :hot="[7]"
   />
-
-<div class="atm-caption mt-2">Only the last byte changes when the requested motor power changes.</div>
 
 </div>
 
 <!--
-The first decoded write, 75 seconds.
+The motor write, about 2 minutes.
 
-Let's look at sample GATT write:
+Before we read the bytes, a small GATT glossary.
 
-TODO....
+A service is a group of related data.
+Think of it as a folder.
 
+A characteristic is one named data point inside that service.
+It has a value and rules that say whether we can read it, write to it, or receive notifications.
 
+The long UUIDs are stable IDs for the service and characteristic.
+
+Once the connection is set up, ATT uses a short local number instead of sending the full UUID in every packet.
+That number is called a handle.
+Here, handle 000B points to the LEGO characteristic.
+
+For this train, one characteristic works as a data pipe.
+The app writes commands to it, and the train sends notifications through it.
+
+GATT gives us the pipe.
+LWP3 defines the messages sent through it.
+
+LWP3 means LEGO Wireless Protocol 3.
+LEGO provides a full official document for it.
+
+It explains message types, ports, flags, commands, and hub properties.
+That means we can decode these bytes without guessing.
+
+This is frame 3619, the write that made the train move.
+
+The right side gives us the full path.
+ATT says this is a Write Request.
+Handle 000B selects the LEGO characteristic.
+Inside it, LWP3 message 81 means Port Output Command.
+
+The value is an eight-byte LWP3 message.
+
+08 is the message length.
+00 is the hub ID.
+81 means Port Output Command.
+The next 00 selects port zero, the built-in motor.
+11 means: run the command now and send feedback.
+51 means Write Direct Mode Data.
+The next 00 selects motor power mode.
+
+The final byte is 45 in hex, or 69 in decimal.
+That means forward power 69.
+
+A reverse command has the same structure.
+Only the last byte changes to BB.
+
+Read as a signed byte, BB means minus 69.
 -->
 
+
+---
+layout: atm-dark
+bg: soft
+panel: true
+dense: true
+deco: none
+---
+
+# One notification, battery state
+
+<div class="grid grid-cols-2 gap-5 mt-0">
+
+<Shot
+  src="/shots/wireshark/GATT_BATTERY.png"
+  label="Wireshark frame 3821 — ATT notification"
+  ratio="16/9"
+  />
+
+<div class="atm-gatt-spec">
+
+<h3>Train → app</h3>
+
+<div class="atm-caption">ATT operation</div>
+<code>Handle Value Notification (0x1b)</code>
+
+<div class="atm-caption mt-3">Characteristic handle</div>
+<code>0x000b</code>
+
+<div class="atm-caption mt-3">LWP3 message</div>
+<code>0x01 · Hub Properties</code>
+
+</div>
+
+</div>
+
+<div v-click class="mt-2">
+
+<h3 style="margin-bottom: 8px;">Decoded value</h3>
+
+<PacketBytes
+  :bytes="[['06','length'],['00','hub'],['01','hub properties'],['06','battery [%]'],['06','update'],['54','84%']]"
+  :hot="[5]"
+  />
+
+</div>
+
+<!--
+The return path, about 80 seconds.
+
+The same GATT characteristic also carries data from the train back to the app.
+
+The right side follows the same structure as the previous slide.
+ATT says this is a Handle Value Notification, with code 1B.
+The handle is again 000B, so this is the same LEGO characteristic.
+Inside it, LWP3 message 01 means Hub Properties.
+
+Inside the notification is a six-byte LWP3 message.
+
+06 is the message length.
+00 is the hub ID.
+01 means Hub Properties.
+The next 06 selects battery level.
+The following 06 means update.
+The final byte is 54 in hex, or 84 in decimal.
+
+Earlier, the app wrote 01 00 to a small setting called the CCCD.
+That turns notifications on.
+
+Commands and state use the same GATT characteristic, but travel in opposite directions.
+-->
 
 ---
 layout: atm-statement
@@ -389,24 +521,16 @@ align: center
 </v-click>
 
 <!--
-The question, 25 seconds.
+The question, about 20 seconds.
 
-After I spend few days with the train and the official app, I asked a question to myself - Can I build my own app?
-I was no experience with writing software that manages BT connection so I thought it will be a a lot of fun and a cool way of learning something new.
+At this point I asked: can I build my own app?
 
+I had never written Bluetooth code before, so I looked for a library.
 
-After some googling, I found that (of course!) there is a JS library that can help me with this challange.
-It's called node-poweredup. Let's see some code samples
+I found node-poweredup.
+It handles Bluetooth and the LEGO protocol and gives me a simple JavaScript API.
 
-
--->
-
-<!--
-The library, 40 seconds.
-
-node-poweredup wraps the BLE scan, hub connection, port discovery, device
-objects and LWP3 frames. It gives us a clean API while Wireshark remains the
-tool for understanding what the API sends. The library is by Nathan Kellenicki.
+Let's look at the code.
 -->
 
 
@@ -529,7 +653,7 @@ await led.setColor(paletteColor)
 ```
 
 <div class="atm-note mt-3">
-The DUPLO LED accepts palette values, not arbitrary RGB. The app maps the requested color to the closest of 11 colors.
+The DUPLO LED accepts 10 color values plus off, not arbitrary RGB. The app maps the requested color to the closest of the 10 colors.
 </div>
 
 <div class="atm-caption mt-2">
@@ -550,17 +674,17 @@ The DUPLO LED accepts palette values, not arbitrary RGB. The app maps the reques
 <!--
 Code samples, 35 seconds total.
 
-The tabs keep four code fragments on one slide. Advance through the connection,
-sensor events, engine setup and lights examples. The lights example is useful
-because it turns a familiar RGB picker into a protocol detail: this DUPLO LED
-accepts a small palette, not arbitrary RGB. The connection is ordinary BLE
-discovery and GATT connection. The library turns notifications into JavaScript
-events. The non-obvious part is the motor driver: the DUPLO base cuts a one-off
-power command after roughly 200 ms when it does not detect wheel movement, so
-the driver keeps refreshing non-zero power. That is also what the official app
-does.
--->
 
+Lets take a look at some code samples.
+Quite straightforward, right?
+
+There are some limitations, eg 
+
+ngine, this code sample will run engine for just about 200ms, because of safeguard implemented in the train base. If we want continous run, we need to resend these commands in a loop. That is also what the official app does.
+
+Regarding lights, The lED diode on the front of the train
+accepts a small palette, not arbitrary RGB.
+-->
 
 ---
 layout: atm-split
@@ -622,8 +746,13 @@ The final app exposes live battery and speedometer data, more sound controls,
 more light controls and a browser UI. The recorded demo is the reliable backup
 for the room. The custom driver reached twice the original top speed on my
 track. Keep the claim tied to that test setup if someone asks for a benchmark.
--->
 
+
+I didn't manage to read color sensor data, not sure why.
+
+
+TODO ogarnac
+-->
 
 ---
 layout: atm-split

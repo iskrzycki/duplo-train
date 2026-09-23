@@ -68,7 +68,7 @@ const MELODIES = {
   },
 };
 
-// The 11 palette colors as RGB, for mapping picker colors to the nearest
+// The 10 lit palette colors plus off, for mapping picker colors to the nearest
 // palette entry (the DUPLO LED ignores RGB-mode writes — palette mode only).
 const PALETTE_RGB = {
   0: [0, 0, 0], 1: [240, 110, 170], 2: [141, 91, 184], 3: [13, 105, 171],
@@ -197,7 +197,7 @@ async function handleCommand(cmd) {
       const g = parseInt(match[1].slice(2, 4), 16);
       const b = parseInt(match[1].slice(4, 6), 16);
       // The DUPLO LED ignores RGB-mode writes, so map to the closest of the
-      // 11 palette colors it does understand.
+      // 10 lit palette colors plus off.
       const nearest = nearestPaletteColor(r, g, b);
       state.ledRgb = `#${match[1].toLowerCase()}`;
       state.ledColor = null;

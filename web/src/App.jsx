@@ -202,14 +202,13 @@ function SensorsCard({ train }) {
 /* ─────────────────────────── lights & sounds card ─────────────────────── */
 
 function FunCard({ train, ready, send }) {
-  const rgbLastSent = useRef(0);
   const activeEffect = train?.effect ?? null;
   const [labValue, setLabValue] = useState(11);
   const labNumber = () => Math.max(0, Math.min(255, Number(labValue) || 0));
 
   return (
     <Card color="yellow" title="Lights & Sounds" icon="🎪">
-      <h3>Hub LED <span className="hint">(palette, off, or any RGB color)</span></h3>
+      <h3>Hub LED <span className="hint">(palette or off)</span></h3>
       <div className="led-grid">
         {LED_ORDER.map((id) => (
           <button
@@ -226,26 +225,9 @@ function FunCard({ train, ready, send }) {
           title="Off"
           disabled={!ready}
           onClick={() => send({ type: "cmd", action: "led", color: 0 })}
-        >
-          ⏻
-        </button>
-        <label
-          className={`led-swatch rgb-picker ${train?.ledRgb ? "led-selected" : ""}`}
-          title={`Pick any color — the train's LED only speaks palette, so the closest of the 11 colors is used${train?.ledRgb ? ` (${train.ledRgb})` : ""}`}
-        >
-          <input
-            type="color"
-            disabled={!ready}
-            defaultValue="#ff40c0"
-            onChange={(event) => {
-              if (Date.now() - rgbLastSent.current > 150) {
-                rgbLastSent.current = Date.now();
-                send({ type: "cmd", action: "ledRgb", hex: event.target.value });
-              }
-            }}
-          />
-          🎨
-        </label>
+          >
+            ⏻
+          </button>
       </div>
 
       <h3>Light effects <span className="hint">(click again to stop)</span></h3>
