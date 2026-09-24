@@ -171,6 +171,20 @@
   max-width: 88%;
 }
 
+/* Larger side-by-side packet views on the merged GATT slide. */
+.atm-gatt-tabs {
+  max-width: 100%;
+  margin-top: -2.3em;
+}
+.atm-gatt-tabs .atm-code-tabs__panel {
+  padding-top: 0.8em;
+}
+.atm-gatt-tabs__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
+  gap: 1.25em;
+}
+
 /* Footnote band, bottom-left, clear of the logo. */
 /*
  * Footnote band. It is nested inside .atm-content, whose own top varies with
@@ -360,6 +374,11 @@
 }
 
 /* Compact packet sequence with one changing Wireshark view below it. */
+.connection-diagram {
+  position: relative;
+  top: -24px;
+}
+
 .connection-screenshot {
   position: relative;
   width: min(100%, 760px);
