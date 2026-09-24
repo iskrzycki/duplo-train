@@ -764,16 +764,25 @@ layout: atm-end
 
 <div class="atm-lead">Don’t hesitate to explore.</div>
 
-<div class="mt-8 flex flex-col gap-3" style="font-size: 24px;">
-  <a href="https://github.com/iskrzycki/duplo-train" target="_blank" rel="noreferrer">
-    github.com/iskrzycki/duplo-train
-  </a>
-  <a href="https://github.com/nathankellenicki/node-poweredup" target="_blank" rel="noreferrer">
-    github.com/nathankellenicki/node-poweredup
-  </a>
-  <a href="https://lego.github.io/lego-ble-wireless-protocol-docs/" target="_blank" rel="noreferrer">
-    LEGO BLE Wireless Protocol Docs
-  </a>
+<div class="atm-links" style="margin-top: 4rem;">
+  <div>
+    <span>Project</span>
+    <a href="https://github.com/iskrzycki/duplo-train" target="_blank" rel="noreferrer">
+      github.com/iskrzycki/duplo-train
+    </a>
+  </div>
+  <div>
+    <span>Library</span>
+    <a href="https://github.com/nathankellenicki/node-poweredup" target="_blank" rel="noreferrer">
+      github.com/nathankellenicki/node-poweredup
+    </a>
+  </div>
+  <div>
+    <span>Protocol</span>
+    <a href="https://lego.github.io/lego-ble-wireless-protocol-docs/" target="_blank" rel="noreferrer">
+      LEGO BLE Wireless Protocol Docs
+    </a>
+  </div>
 </div>
 
 <!--

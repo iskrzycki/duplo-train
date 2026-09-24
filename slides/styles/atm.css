@@ -294,12 +294,15 @@
   color: var(--atm-orange);
 }
 
-/* Credit list on the closing slide: a narrow label column, then the reference. */
+/* Closing slide links: a quiet label column and clean, easy-to-read targets. */
+.atm-links {
+  max-width: 760px;
+}
 .atm-links > div {
   display: grid;
-  grid-template-columns: 5.6em 1fr;
-  gap: 0.6em;
-  padding: 0.22em 0;
+  grid-template-columns: 5.8em minmax(0, 1fr);
+  gap: 0.8em;
+  padding: 0.3em 0;
   font-size: var(--atm-fs-small);
   line-height: 1.35;
 }
@@ -310,6 +313,14 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding-top: 0.15em;
+}
+.atm-links > div > a {
+  width: fit-content;
+  max-width: 100%;
+  color: var(--atm-paper);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 0;
 }
 
 /* Byte boxes for the LWP3 packet walk-through. */

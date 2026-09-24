@@ -6,10 +6,15 @@ const nav = useNav()
 
 // Use the slide number, not the click count, so the train moves only when
 // the presentation advances to another slide.
-const showProgress = computed(() => nav.currentPage.value > 1)
+const showProgress = computed(() =>
+  nav.currentPage.value > 1 && nav.currentPage.value < nav.total.value,
+)
 
 const progress = computed(() => {
   const firstVisibleSlide = 2
+  const lastVisibleSlide = nav.total.value - 1
+  if (nav.currentPage.value === lastVisibleSlide) return 0.97
+
   const slideSpan = Math.max(nav.total.value - firstVisibleSlide, 1)
   return Math.min(1, Math.max(0, (nav.currentPage.value - firstVisibleSlide) / slideSpan))
 })
