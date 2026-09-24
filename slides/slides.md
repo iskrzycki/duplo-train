@@ -358,7 +358,7 @@ clicksStart: 1
 
 <PacketBytes
   :bytes="[['08','length'],['00','hub'],['81','message'],['00','motor'],['11','flags'],['51','write direct'],['00','power'],['45','+69']]"
-  :hot="[7]"
+  :hot="[3, 7]"
   />
 
 </div>
@@ -405,7 +405,7 @@ clicksStart: 1
 
 <PacketBytes
   :bytes="[['06','length'],['00','hub'],['01','hub properties'],['06','battery [%]'],['06','update'],['54','84%']]"
-  :hot="[5]"
+  :hot="[3, 5]"
   />
 
 </div>
@@ -418,42 +418,25 @@ clicksStart: 1
 </div>
 
 <!--
-Before we read the bytes, a small GATT glossary.
+The fields on the right make the packet easier to read.
 
-A service is a group of related data.
-Think of it as a folder.
+Most of them are self-explanatory.
+The only new one is the characteristic handle.
 
-A characteristic is one item inside that service.
-It has a value and rules for reading, writing, and notifications.
+Think of it as a short local address from the train's GATT table.
+The train assigns it before the connection.
+Here it is 000B, but another device can use a different address.
 
-ATT uses a short local number called a handle.
-Here, handle 000B points to the LEGO characteristic.
+The first tab is a command from the app to the train.
+We do not need to read every byte.
+The highlighted 00 selects port zero, the built-in motor.
+The highlighted 45 sets forward power to 69.
 
-For this train, the app writes commands through it, and the train sends notifications back through it.
+The second tab is a battery update from the train.
+Again, we only need the highlighted bytes.
+06 means battery level, and 54 is the value: 84 percent.
 
-The first tab shows the write that made the train move.
-ATT says it is a Write Request. LWP3 message 81 means Port Output Command.
-
-The value is an eight-byte LWP3 message.
-
-08 is the length. 00 is the hub ID. 81 is Port Output Command.
-The next 00 selects port zero, the built-in motor.
-11 means run the command now and send feedback.
-51 selects Write Direct Mode Data, and 00 selects motor power mode.
-
-The final byte is 45 in hex, or 69 in decimal.
-That means forward power 69.
-
-The second tab shows a battery update from the train.
-ATT says it is a Handle Value Notification. LWP3 message 01 means Hub Properties.
-
-This notification has six bytes.
-
-06 is the length, 00 is the hub ID, and 01 means Hub Properties.
-The next 06 selects battery level, and the following 06 means update.
-The final byte is 54 in hex, or 84 in decimal.
-
-Both examples use handle 000B, but the data goes in different directions.
+Both tabs use handle 000B, but the data goes in different directions.
 -->
 
 ---
@@ -703,7 +686,7 @@ deco: hand
 ratio: 0.9fr 1.2fr
 ---
 
-# Bonus: 8BitDo gamepad
+# BONUS: GAMEPAD.
 
 <div class="atm-sub">A different controller for the same BLE commands</div>
 
