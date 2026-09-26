@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTrainSocket } from "./useTrainSocket.js";
+import { useDriveControl } from "./useDriveControl.js";
+import { useGamepad } from "./useGamepad.js";
 
 // ?ws=1234 overrides the WebSocket port (default 8081, see server.js)
 const WS_PORT = new URLSearchParams(location.search).get("ws") ?? 8081;
@@ -73,25 +75,9 @@ function Pill({ tone, children }) {
 
 /* ─────────────────────────────── drive card ───────────────────────────── */
 
-function DriveCard({ train, ready, send }) {
-  const [slider, setSlider] = useState(0);
-  const dragging = useRef(false);
-  const lastSent = useRef(0);
-
-  // follow the server unless the user is mid-drag
-  useEffect(() => {
-    if (!dragging.current) setSlider(train?.power ?? 0);
-  }, [train?.power]);
-
-  const sendPower = (value) => send({ type: "cmd", action: "power", value });
-
+function DriveCard({ power, ready, setPower, stop, gamepad }) {
   const onSlide = (event) => {
-    const value = Number(event.target.value);
-    setSlider(value);
-    if (Date.now() - lastSent.current > 150) { // throttle while dragging
-      lastSent.current = Date.now();
-      sendPower(value);
-    }
+    setPower(Number(event.target.value));
   };
 
   return (
@@ -100,10 +86,10 @@ function DriveCard({ train, ready, send }) {
         {SPEED_PRESETS.map((preset) => (
           <button
             key={preset.value}
-            className={`brick-btn brick-blue ${train?.power === preset.value ? "brick-selected" : ""}`}
+            className={`brick-btn brick-blue ${power === preset.value ? "brick-selected" : ""}`}
             title={`${preset.title} (${preset.value})`}
             disabled={!ready}
-            onClick={() => sendPower(preset.value)}
+            onClick={() => setPower(preset.value, { force: true })}
           >
             {preset.label}
           </button>
@@ -112,24 +98,28 @@ function DriveCard({ train, ready, send }) {
       <button
         className="brick-btn brick-red stop-btn"
         disabled={!ready}
-        onClick={() => send({ type: "cmd", action: "stop" })}
+        onClick={() => stop()}
       >
         ⛔ STOP
       </button>
       <div className="slider-row">
         <input
           type="range" min="-100" max="100" step="5"
-          value={slider}
+          value={power}
           disabled={!ready}
           onChange={onSlide}
-          onPointerDown={() => { dragging.current = true; }}
-          onPointerUp={(event) => { dragging.current = false; sendPower(Number(event.target.value)); }}
+          onPointerUp={(event) => setPower(Number(event.target.value), { force: true })}
           aria-label="Motor power"
         />
         <div className="slider-scale"><span>-100</span><span>0</span><span>+100</span></div>
       </div>
       <div className="readout">
-        commanded power <b>{train?.power ?? 0}</b>
+        commanded power <b>{power}</b>
+      </div>
+      <div className="gamepad-readout">
+        {gamepad
+          ? <>🎮 <b>{gamepad.id}</b> · left stick: drive · A: horn · B: stop</>
+          : "🎮 No gamepad — mouse and touch controls stay available"}
       </div>
     </Card>
   );
@@ -356,6 +346,19 @@ export default function App() {
   const { wsStatus, train, logLines, send } = useTrainSocket(WS_URL);
   const status = train?.status ?? "offline";
   const ready = wsStatus === "open" && status === "connected";
+  const { power, setDrivePower, stop } = useDriveControl({
+    trainPower: train?.power,
+    ready,
+    send,
+  });
+  const gamepad = useGamepad({
+    enabled: true,
+    onPower: (value) => setDrivePower(value, { source: "gamepad" }),
+    onStop: () => stop({ source: "gamepad" }),
+    onHorn: () => {
+      if (ready) send({ type: "cmd", action: "sound", name: "HORN" });
+    },
+  });
 
   return (
     <div className="app">
@@ -367,6 +370,9 @@ export default function App() {
           </Pill>
           <Pill tone={status === "connected" ? "ok" : status === "scanning" ? "warn" : "bad"}>
             🚂 {status === "connected" ? (train?.name ?? "train") : status}
+          </Pill>
+          <Pill tone={gamepad.controller ? "ok" : gamepad.supported ? "warn" : "bad"}>
+            🎮 {gamepad.controller ? "gamepad connected" : gamepad.supported ? "no gamepad" : "Gamepad API unavailable"}
           </Pill>
           {train?.mock && <Pill tone="mock">🧪 mock train</Pill>}
         </div>
@@ -389,7 +395,13 @@ export default function App() {
       )}
 
       <main className="grid">
-        <DriveCard train={train} ready={ready} send={send} />
+        <DriveCard
+          power={power}
+          ready={ready}
+          setPower={setDrivePower}
+          stop={stop}
+          gamepad={gamepad.controller}
+        />
         <SensorsCard train={train} />
         <FunCard train={train} ready={ready} send={send} />
         <LogCard logLines={logLines} />

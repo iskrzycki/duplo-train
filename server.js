@@ -7,6 +7,7 @@
  *   server → client   {type:"state", state:{…}}    full snapshot on every change
  *   server → client   {type:"log", line:{t,tag,message,data}}   mirrored log lines
  *   client → server   {type:"cmd", action:"power"|"stop"|"led"|"sound"|"tone", …}
+ *                      power may include source:"gamepad" for its safety watchdog
  *
  * Usage:
  *   node server.js          # real train (scans until it finds one, reconnects on drop)
@@ -22,6 +23,7 @@ import { LED_EFFECTS, makeLedAnimator } from "./effects.js";
 const MOCK = process.argv.includes("--mock");
 // Deliberately NOT `PORT` — dev tooling (vite preview harnesses) owns that one.
 const PORT = Number(process.env.WS_PORT ?? 8081);
+const GAMEPAD_WATCHDOG_MS = 400;
 
 // Wire-stable copies of the Powered UP enums (usable without node-poweredup):
 const COLOR_NAMES = {
@@ -107,6 +109,7 @@ const state = {
 
 let train = null; // active driver: {setPower, stop, playSound, playTone, setLed, setLedRgb}
 let melodyBusy = false;
+let gamepadWatchdog = null;
 
 // LED effect engine — steps go straight to the train's LED.
 const animator = makeLedAnimator((color) => train?.setLed(color));
@@ -117,6 +120,23 @@ function stopEffect(quiet = false) {
     if (!quiet) log("TX", `panel → LED effect '${state.effect}' stopped`);
     state.effect = null;
   }
+}
+
+function clearGamepadWatchdog() {
+  clearTimeout(gamepadWatchdog);
+  gamepadWatchdog = null;
+}
+
+function armGamepadWatchdog() {
+  clearGamepadWatchdog();
+  gamepadWatchdog = setTimeout(() => {
+    gamepadWatchdog = null;
+    if (!train || state.power === 0) return;
+    log("SAFE", `gamepad input timed out after ${GAMEPAD_WATCHDOG_MS} ms — stopping train`);
+    handleCommand({ type: "cmd", action: "stop", source: "safety" })
+      .catch((err) => log("ERR", `gamepad safety stop failed: ${err.message}`));
+  }, GAMEPAD_WATCHDOG_MS);
+  gamepadWatchdog.unref?.();
 }
 
 /* ─────────────────────────── websocket hub ─────────────────────────── */
@@ -171,10 +191,18 @@ async function handleCommand(cmd) {
     case "power": {
       state.power = clamp(cmd.value, -100, 100);
       log("TX", `panel → drive at ${state.power} (keep-alive re-sends until stop)`);
-      await train.setPower(state.power);
+      if (state.power === 0) {
+        clearGamepadWatchdog();
+        await train.stop();
+      } else {
+        await train.setPower(state.power);
+        if (cmd.source === "gamepad") armGamepadWatchdog();
+        else clearGamepadWatchdog();
+      }
       break;
     }
     case "stop": {
+      clearGamepadWatchdog();
       state.power = 0;
       log("TX", "panel → stop");
       await train.stop();

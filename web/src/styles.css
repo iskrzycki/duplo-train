@@ -145,6 +145,16 @@ body {
 
 .readout { margin-top: 10px; font-size: 15px; color: #5b6c85; }
 .readout b { color: var(--ink); font-size: 17px; }
+.gamepad-readout {
+  min-height: 20px;
+  margin-top: 6px;
+  color: #5b6c85;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gamepad-readout b { color: var(--ink); }
 
 /* ── sensors card ─────────────────────────────────────────────────────── */
 

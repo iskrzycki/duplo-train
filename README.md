@@ -99,6 +99,7 @@ npm run app:mock   # same, but with a simulated train — no Bluetooth needed
 Open http://localhost:5173 (Vite picks the next port if that one is busy). The panel gives you:
 
 - **Drive** — speed preset bricks, a big STOP, and a fine-grained power slider (−100…100)
+- **Gamepad** — optional browser-native control: left stick drives, button 0 sounds the horn, and button 1 stops. The mouse and touch controls work exactly as before when no controller is connected.
 - **Sensors** — live speedometer with a gauge, the color seen under the train (with history), battery
 - **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in sounds, the audible tones, three playTone melodies (🎵 jingle, ⭐ Star Wars-ish, 🍄 Mario-ish) and a raw-value Sound lab (0–255)
 - **Train log** — the server's log mirrored live into the browser, with an optional raw-protocol-frames toggle
@@ -120,6 +121,7 @@ Open http://localhost:5173 (Vite picks the next port if that one is busy). The p
 server → client   {type:"state", state:{status, name, battery, power, speed, color, colorHistory, ledColor, ledRgb, effect, lastSound, mock}}
 server → client   {type:"log",   line:{t, tag, message, data}}
 client → server   {type:"cmd", action:"power", value:-100…100}
+client → server   {type:"cmd", action:"power", value:-100…100, source:"gamepad"}  # optional gamepad heartbeat
 client → server   {type:"cmd", action:"stop"}
 client → server   {type:"cmd", action:"led", color:0…10}
 client → server   {type:"cmd", action:"sound", name:"HORN"|"STATION_DEPARTURE"|"WATER_REFILL"|"STEAM"|"BRAKE"}
@@ -135,6 +137,14 @@ Setting a color or starting another effect stops the running effect; `state.effe
 There's no auth — anyone on your LAN who finds the port can honk your train. Family features, not bugs.
 
 Frontend lives in [web/](web/) (Vite + React: [App.jsx](web/src/App.jsx), [useTrainSocket.js](web/src/useTrainSocket.js), [styles.css](web/src/styles.css)). Mock mode (`--mock`) never loads the Bluetooth stack, so UI development works on any machine.
+
+### Optional Bluetooth gamepad
+
+Pair the controller with the operating system first; the browser's Gamepad API only reads the controller that the OS already exposes. The dashboard remains fully usable without one.
+
+- Left-stick vertical axis controls motor power. A dead zone and a curved response make slow movement near the centre easier.
+- Gamepad button `0` plays the horn; button `1` sends STOP. These are the browser's standard button indices, so non-standard controller mappings may need an adjustment in [`useGamepad.js`](web/src/useGamepad.js).
+- While driving, the browser sends a gamepad power heartbeat every 100 ms. If `server.js` does not receive one for 400 ms, it stops the train. Losing the controller, hiding the tab, or switching away from it also requests STOP.
 
 ## Talk slides
 
