@@ -423,7 +423,7 @@ The fields on the right make the packet easier to read.
 Most of them are self-explanatory.
 The only new one is the characteristic handle.
 
-Think of it as a short local address from the train's GATT table.
+Think of it as a short local address from the train's GATT (TODO describe) table.
 The train assigns it before the connection.
 Here it is 000B, but another device can use a different address.
 
@@ -615,6 +615,11 @@ There are still a few train-specific details.
 The motor stops after about 200 milliseconds unless we send the power command again. The official app does the same.
 
 The front LED accepts a small palette of ten colors. RGB not supported.
+
+
+
+
+TODO: consider merging two last examples, explain them better?
 -->
 
 ---
@@ -786,7 +791,8 @@ layout: atm-end
 </div>
 
 <!--
-Thank the audience, then leave the project and protocol links on screen for
-photos. The final line is the invitation: once the protocol is visible, it is
-worth exploring what else the device can do.
+Thank you,
+
+
+Don’t hesitate to explore. With curiosity and a few tools, we can explore how everyday electronic devices really work and have a lot of fun doing it.
 -->
