@@ -45,6 +45,15 @@ layout: atm-cover
 Rafał Iskrzycki · Allegro Tech Meeting #19
 
 <!--
+**Key points**
+
+- Everyday tech can feel like magic
+- The interesting part stays hidden
+- What happens after a button press?
+- Start with curiosity
+
+---
+
 Most gadgets feel like magic because we only see the result.
 You press a button and something happens, while the interesting part stays invisible.
 
@@ -60,6 +69,16 @@ photo: /shots/Duplo-Steam-Train-by-Lego-transparent.png
 ---
 
 <!--
+**Key points**
+
+- A Christmas gift
+- I had to test it
+- Simple controls on the track
+- “Free optional app”
+- The app made me curious
+
+---
+
 Everything started with a Christmas present: a LEGO DUPLO steam train for my son.
 
 He was still a little too young to play with it on his own, so naturally, I had to test it for him.
@@ -94,6 +113,14 @@ dense: true
 </div>
 
 <!--
+**Key points**
+
+- A deliberately small control surface
+- Every tap sends a message
+- What does the app actually send?
+
+---
+
 The official app keeps things simple.
 
 You can move the train forward or backward, stop it, play a few sounds, and change the light.
@@ -134,6 +161,15 @@ dense: true
 </div>
 
 <!--
+**Key points**
+
+- One brand, two protocol stacks
+- Classic Bluetooth: continuous connection
+- BLE: short messages and low power
+- The train uses BLE
+
+---
+
 Before looking for that message, one distinction matters.
 
 Bluetooth is one brand name covering two quite different protocol stacks.
@@ -153,6 +189,14 @@ layout: atm-section
 <div class="atm-lead">What it takes to listen to BLE packets</div>
 
 <!--
+**Key points**
+
+- Messages exist
+- I needed to see them
+- Time for the right tools
+
+---
+
 Knowing that messages exist is one thing.
 Seeing them is another.
 
@@ -209,6 +253,15 @@ clicks: 2
 </div>
 
 <!--
+**Key points**
+
+- nRF52840 dongle with sniffer firmware
+- It listens without connecting
+- Catch the connection start
+- Wireshark explains the traffic
+
+---
+
 The setup was really small.
 
 First, the hardware: this small USB dongle. Its full name is at the top.
@@ -233,6 +286,14 @@ layout: atm-section
 <div class="atm-lead">From a button press to the packets behind it</div>
 
 <!--
+**Key points**
+
+- Press a button in the official app
+- Watch the radio traffic
+- Follow one motor action
+
+---
+
 Now I could press a button in the official app and watch what happened over the air.
 
 Let's follow one interaction from discovering the train to the command that moves it.
@@ -282,6 +343,16 @@ clicksStart: 1
 </div>
 
 <!--
+**Key points**
+
+- The train advertises its presence
+- The phone connects
+- The app sends an LWP3 command
+- The train sends notifications
+- Many setup packets sit in between
+
+---
+
 This is a simplified view of the exchange.
 
 First, the train sends advertisements.
@@ -418,6 +489,16 @@ clicksStart: 1
 </div>
 
 <!--
+**Key points**
+
+- ATT carries LWP3 messages
+- Handle `0x000b` is a local GATT address
+- Motor command: port 0, power +69
+- Battery notification: 84%
+- Same handle, two directions
+
+---
+
 The fields on the right make the packet easier to read.
 
 Most of them are self-explanatory.
@@ -455,6 +536,15 @@ align: center
 </v-click>
 
 <!--
+**Key points**
+
+- Can I build my own app?
+- My first Bluetooth project
+- `node-poweredup` provides a simple API
+- Time to look at code
+
+---
+
 At this point I asked: can I build my own app?
 
 I had never written Bluetooth code before, so I looked for a library.
@@ -604,6 +694,15 @@ The DUPLO LED accepts 10 color values plus off, not arbitrary RGB. The app maps 
 </div>
 
 <!--
+**Key points**
+
+- A high-level API over BLE
+- The library hides the low-level details
+- The motor watchdog needs repeated commands
+- The LED uses a 10-color palette
+
+---
+
 This code uses a high-level API over Bluetooth Low Energy.
 The syntax feels familiar to JavaScript developers, so it is easy to get started.
 
@@ -676,6 +775,16 @@ deco: none
 </div>
 
 <!--
+**Key points**
+
+- React app in the browser
+- Node.js handles Bluetooth
+- WebSocket connects the two
+- Live battery and speed updates
+- Everything runs on one machine
+
+---
+
 This is the result: a small React web app with train controls and live data.
 
 The React app talks to a Node.js server over WebSocket.
@@ -712,6 +821,15 @@ ratio: 0.9fr 1.2fr
 </div>
 
 <!--
+**Key points**
+
+- The BLE protocol stays the same
+- Browser reads the gamepad
+- WebSocket reaches the Node server
+- The phone is no longer special
+
+---
+
 The controller does not change the BLE protocol. The browser reads the 8BitDo
 gamepad, sends a small WebSocket command to the Node server, and the server
 writes the same GATT characteristic. That is the practical payoff: once the
@@ -751,6 +869,15 @@ dense: true
 <div class="atm-caption mt-2 text-center">iPhone test recording · 4.7 s</div>
 
 <!--
+**Key points**
+
+- Short iPhone test recording
+- Start it with the built-in controls
+- MP4 first, MOV as fallback
+- The video resets with the slide
+
+---
+
 This is the short test recording from the iPhone. Start it manually with the
 built-in controls. The slide uses the H.264 MP4 copy first, with the original
 MOV as a fallback. The video resets when leaving the slide so the demo starts
@@ -791,6 +918,15 @@ layout: atm-end
 </div>
 
 <!--
+**Key points**
+
+- Thank you
+- Curiosity and a few tools are enough
+- Everyday electronics are explorable
+- Have fun
+
+---
+
 Thank you,
 
 
