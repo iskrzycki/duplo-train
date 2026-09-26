@@ -98,9 +98,6 @@ const state = {
   battery: null,
   power: 0,                  // commanded motor power (-100…100)
   speed: 0,                  // measured, raw speedometer units
-  color: null,               // last recognized color id (0…10)
-  colorRaw: null,            // last raw sensor value (incl. 255 = nothing)
-  colorHistory: [],          // [{color, at}] most recent last, max 10
   ledColor: null,            // palette id, when set manually
   ledRgb: null,              // "#rrggbb", when set via the RGB picker
   effect: null,              // running LED effect name (see effects.js)
@@ -285,16 +282,6 @@ async function handleCommand(cmd) {
   pushState(true);
 }
 
-/* ─────────────────────────── sensor intake ─────────────────────────── */
-
-function sawColor(color) {
-  state.color = color;
-  state.colorRaw = color;
-  state.colorHistory = [...state.colorHistory, { color, at: Date.now() }].slice(-10);
-  log("RX", `Color sensor: ${COLOR_NAMES[color] ?? color}`);
-  pushState(true);
-}
-
 /* ──────────────────────────── real train ───────────────────────────── */
 
 async function startRealTrain() {
@@ -344,30 +331,13 @@ async function startRealTrain() {
       withTimeout(hub.waitForDeviceByType(type), 10000, label)
         .catch((err) => { log("WARN", `${label}: ${err.message}`); return null; });
 
-    const [motor, speaker, colorSensor, speedometer, led] = await Promise.all([
+    const [motor, speaker, speedometer, led] = await Promise.all([
       getDevice(Consts.DeviceType.DUPLO_TRAIN_BASE_MOTOR, "motor"),
       getDevice(Consts.DeviceType.DUPLO_TRAIN_BASE_SPEAKER, "speaker"),
-      getDevice(Consts.DeviceType.DUPLO_TRAIN_BASE_COLOR_SENSOR, "color sensor"),
       getDevice(Consts.DeviceType.DUPLO_TRAIN_BASE_SPEEDOMETER, "speedometer"),
       getDevice(Consts.DeviceType.HUB_LED, "hub LED"),
     ]);
 
-    // Verified subscriptions — color sensor first, on its own (see README).
-    if (colorSensor) {
-      await subscribeVerified(colorSensor, 1, "color sensor (COLOR mode)");
-      const originalReceive = colorSensor.receive.bind(colorSensor);
-      colorSensor.receive = (message) => {
-        const value = message[4];
-        if (colorSensor.mode === 1 && value > 10) { // "nothing in view" — lib drops it
-          state.color = null;
-          state.colorRaw = value;
-          pushState();
-        }
-        originalReceive(message);
-      };
-      colorSensor.on("color", ({ color }) => sawColor(color));
-    }
-    await sleep(300);
     if (speedometer) {
       await subscribeVerified(speedometer, 0, "speedometer (SPEED mode)");
       speedometer.on("speed", ({ speed }) => {
@@ -450,15 +420,6 @@ function startMockTrain() {
       pushState();
     }
   }, 150);
-
-  // While moving, the train rolls over the occasional colored tile.
-  const tiles = [9, 7, 3, 6, 10, 255, 255, 255]; // mostly "nothing"
-  setInterval(() => {
-    if (state.speed === 0) return;
-    const value = tiles[Math.floor(Math.random() * tiles.length)];
-    if (value <= 10) sawColor(value);
-    else { state.color = null; state.colorRaw = value; pushState(); }
-  }, 3500);
 
   // Batteries don't last forever…
   setInterval(() => {

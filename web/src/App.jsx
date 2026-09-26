@@ -7,8 +7,8 @@ import { useGamepad } from "./useGamepad.js";
 const WS_PORT = new URLSearchParams(location.search).get("ws") ?? 8081;
 const WS_URL = `ws://${location.hostname}:${WS_PORT}`;
 
-// Powered UP color ids → UI colors (LEGO-ish palette)
-const COLORS = {
+// Powered UP LED color ids → UI colors (LEGO-ish palette)
+const LED_COLORS = {
   0: { name: "Black", hex: "#3B3B3B" },
   1: { name: "Pink", hex: "#F06EAA" },
   2: { name: "Purple", hex: "#8D5BB8" },
@@ -75,7 +75,9 @@ function Pill({ tone, children }) {
 
 /* ─────────────────────────────── drive card ───────────────────────────── */
 
-function DriveCard({ power, ready, setPower, stop, gamepad }) {
+function DriveCard({ power, speed, ready, setPower, stop, gamepad }) {
+  const gaugePct = Math.min(Math.abs(speed), 400) / 400 * 50;
+
   const onSlide = (event) => {
     setPower(Number(event.target.value));
   };
@@ -121,21 +123,7 @@ function DriveCard({ power, ready, setPower, stop, gamepad }) {
           ? <>🎮 <b>{gamepad.id}</b> · left stick: drive · A: horn · B: stop</>
           : "🎮 No gamepad — mouse and touch controls stay available"}
       </div>
-    </Card>
-  );
-}
-
-/* ────────────────────────────── sensors card ──────────────────────────── */
-
-function SensorsCard({ train }) {
-  const speed = train?.speed ?? 0;
-  const gaugePct = Math.min(Math.abs(speed), 400) / 400 * 50;
-  const seen = train?.color != null ? COLORS[train.color] : null;
-  const nothingRaw = train?.colorRaw != null && train.colorRaw > 10;
-
-  return (
-    <Card color="blue" title="Sensors" icon="📡">
-      <div className="sensor-block">
+      <div className="drive-speedometer">
         <h3>Speedometer <span className="hint">(raw units, signed)</span></h3>
         <div className={`speed-value ${speed < 0 ? "neg" : ""}`}>{speed}</div>
         <div className="gauge">
@@ -148,43 +136,6 @@ function SensorsCard({ train }) {
           />
         </div>
       </div>
-
-      <div className="sensor-block">
-        <h3>Color under the train</h3>
-        <div className="color-now">
-          <div
-            className={`swatch ${seen ? "" : "swatch-empty"}`}
-            style={seen ? { background: seen.hex } : undefined}
-          />
-          <div className="color-label">
-            {seen ? seen.name : nothingRaw ? "Nothing in view" : "No reading yet"}
-            {!seen && <div className="hint">hold a brick ≤2 cm under the nose sensor</div>}
-          </div>
-        </div>
-        <div className="color-history">
-          {(train?.colorHistory ?? []).map((entry, i) => (
-            <span
-              key={`${entry.at}-${i}`}
-              className="history-dot"
-              title={COLORS[entry.color]?.name}
-              style={{ background: COLORS[entry.color]?.hex ?? "#ccc" }}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="sensor-block">
-        <h3>Battery</h3>
-        <div className="battery">
-          <div className="battery-bar">
-            <div
-              className={`battery-fill ${train?.battery <= 20 ? "battery-low" : ""}`}
-              style={{ width: `${train?.battery ?? 0}%` }}
-            />
-          </div>
-          <span>{train?.battery != null ? `${train.battery}%` : "—"}</span>
-        </div>
-      </div>
     </Card>
   );
 }
@@ -193,19 +144,17 @@ function SensorsCard({ train }) {
 
 function FunCard({ train, ready, send }) {
   const activeEffect = train?.effect ?? null;
-  const [labValue, setLabValue] = useState(11);
-  const labNumber = () => Math.max(0, Math.min(255, Number(labValue) || 0));
 
   return (
     <Card color="yellow" title="Lights & Sounds" icon="🎪">
-      <h3>Hub LED <span className="hint">(palette or off)</span></h3>
+      <h3>Hub LED</h3>
       <div className="led-grid">
         {LED_ORDER.map((id) => (
           <button
             key={id}
             className={`led-swatch ${train?.ledColor === id && !activeEffect ? "led-selected" : ""}`}
-            style={{ background: COLORS[id].hex }}
-            title={COLORS[id].name}
+            style={{ background: LED_COLORS[id].hex }}
+            title={LED_COLORS[id].name}
             disabled={!ready}
             onClick={() => send({ type: "cmd", action: "led", color: id })}
           />
@@ -274,35 +223,6 @@ function FunCard({ train, ready, send }) {
           </button>
         ))}
       </div>
-
-      <h3>Sound lab <span className="hint">(hunt for hidden sounds — raw values 0–255)</span></h3>
-      <div className="lab-row">
-        <input
-          className="lab-input"
-          type="number" min="0" max="255"
-          value={labValue}
-          disabled={!ready}
-          onChange={(event) => setLabValue(event.target.value)}
-          aria-label="Raw sound/tone value"
-        />
-        <button
-          className="brick-btn brick-green beep-btn"
-          disabled={!ready}
-          title="playTone with this raw value"
-          onClick={() => send({ type: "cmd", action: "tone", value: labNumber() })}
-        >
-          ▶ Tone
-        </button>
-        <button
-          className="brick-btn brick-yellow beep-btn"
-          disabled={!ready}
-          title="playSound with this raw value (the 5 named sounds live at 3, 5, 7, 9, 10)"
-          onClick={() => send({ type: "cmd", action: "soundRaw", value: labNumber() })}
-        >
-          ▶ Sound
-        </button>
-      </div>
-
     </Card>
   );
 }
@@ -374,6 +294,9 @@ export default function App() {
           <Pill tone={gamepad.controller ? "ok" : gamepad.supported ? "warn" : "bad"}>
             🎮 {gamepad.controller ? "gamepad connected" : gamepad.supported ? "no gamepad" : "Gamepad API unavailable"}
           </Pill>
+          <Pill tone={train?.battery == null ? "warn" : train.battery <= 20 ? "bad" : train.battery <= 50 ? "warn" : "ok"}>
+            🔋 {train?.battery == null ? "battery —" : `${train.battery}%`}
+          </Pill>
           {train?.mock && <Pill tone="mock">🧪 mock train</Pill>}
         </div>
       </header>
@@ -397,12 +320,12 @@ export default function App() {
       <main className="grid">
         <DriveCard
           power={power}
+          speed={train?.speed ?? 0}
           ready={ready}
           setPower={setDrivePower}
           stop={stop}
           gamepad={gamepad.controller}
         />
-        <SensorsCard train={train} />
         <FunCard train={train} ready={ready} send={send} />
         <LogCard logLines={logLines} />
       </main>

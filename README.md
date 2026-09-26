@@ -89,7 +89,7 @@ The hub LED always mirrors the last tile color. The mapping lives in `onColorTil
 
 ## Web control panel 🚂🖥️
 
-A DUPLO-styled React dashboard with live sensor data and driving controls:
+A DUPLO-styled React dashboard with driving controls and a live speedometer:
 
 ```bash
 npm run app        # WebSocket bridge (server.js) + React app (Vite), real train
@@ -98,17 +98,17 @@ npm run app:mock   # same, but with a simulated train — no Bluetooth needed
 
 Open http://localhost:5173 (Vite picks the next port if that one is busy). The panel gives you:
 
-- **Drive** — speed preset bricks, a big STOP, and a fine-grained power slider (−100…100)
+- **Drive** — speed preset bricks, a big STOP, a fine-grained power slider (−100…100), and a live speedometer
 - **Gamepad** — optional browser-native control: left stick drives, button 0 sounds the horn, and button 1 stops. The mouse and touch controls work exactly as before when no controller is connected.
-- **Sensors** — live speedometer with a gauge, the color seen under the train (with history), battery
-- **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in sounds, the audible tones, three playTone melodies (🎵 jingle, ⭐ Star Wars-ish, 🍄 Mario-ish) and a raw-value Sound lab (0–255)
+- **Status** — current battery level stays visible in the header
+- **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in sounds, the audible tones, and three playTone melodies (🎵 jingle, ⭐ Star Wars-ish, 🍄 Mario-ish)
 - **Train log** — the server's log mirrored live into the browser, with an optional raw-protocol-frames toggle
 
 ### What the hardware can actually do (sounds & colors)
 
 - **Sounds**: the speaker's SOUND mode has exactly 5 named sounds in the protocol — `BRAKE(3)`, `STATION_DEPARTURE(5)`, `WATER_REFILL(7)`, `HORN(9)`, `STEAM(10)`. There are no other hidden named sounds.
 - **Tones**: the speaker's TONE mode (`playTone(n)`) documents values 1–10, but **4, 6 and 8 are silent** (verified on real hardware), so the panel exposes 1, 2, 3, 5, 7, 9, 10. The melody buttons play tone sequences — notes go out as raw fire-and-forget writes (waiting for per-note acknowledgments added jitter that mangled the rhythm) and support rests. The exact pitch of each tone is firmware-defined, so the Star Wars / Mario buttons chase the *rhythm* of the originals more than the notes (tune them in `MELODIES` in [server.js](server.js)).
-- **Beyond 10?** No — we checked. A full automated sweep of raw values 0–255 through both SOUND and TONE modes on real hardware turned up **nothing beyond the documented values**: the speaker's complete repertoire is the 5 named sounds (3, 5, 7, 9, 10) and the audible tones (1, 2, 3, 5, 7, 9, 10). The **Sound lab** stays in the panel for manually re-checking any raw value 0–255.
+- **Beyond 10?** No — we checked. A full automated sweep of raw values 0–255 through both SOUND and TONE modes on real hardware turned up **nothing beyond the documented values**: the speaker's complete repertoire is the 5 named sounds (3, 5, 7, 9, 10) and the audible tones (1, 2, 3, 5, 7, 9, 10). The dashboard therefore exposes only the documented sounds and audible tones.
 - **The green button is the power button** — the hub reports PRESSED/RELEASED events, but pressing it while connected simply powers the hub off (hence the disconnect). The server logs the press as the explanation; there's no UI widget because the only state you'd ever see is "released".
 - **LED colors**: the palette has 10 lit colors plus off (`0`) — and that's it: the DUPLO LED **ignores RGB-mode writes** (verified on real hardware), so arbitrary colors aren't possible. The panel exposes the ten colors and off directly.
 - **Light effects** are our own invention: the server blinks the LED on a timer ([effects.js](effects.js)) — police double-flash, railroad-crossing blink, rainbow cycle, disco shuffle, and a warm "firebox" flicker. Add your own by extending `LED_EFFECTS`. Implementation note: effect (and all LED) writes bypass node-poweredup's command queue — the queue waits for a per-write acknowledgment and re-sends mode subscriptions, which jams at blink rates — and go out as raw Port Output frames (`0x81, port, 0x10, 0x51, mode, …`, "execute immediately, no feedback").
@@ -118,7 +118,7 @@ Open http://localhost:5173 (Vite picks the next port if that one is busy). The p
 `server.js` owns the BLE connection (scan → connect → verified subscriptions, auto-reconnect when the train sleeps) and serves a WebSocket on port **8081** (`WS_PORT` env to change; the panel accepts `?ws=<port>`):
 
 ```
-server → client   {type:"state", state:{status, name, battery, power, speed, color, colorHistory, ledColor, ledRgb, effect, lastSound, mock}}
+server → client   {type:"state", state:{status, name, battery, power, speed, ledColor, ledRgb, effect, lastSound, mock}}
 server → client   {type:"log",   line:{t, tag, message, data}}
 client → server   {type:"cmd", action:"power", value:-100…100}
 client → server   {type:"cmd", action:"power", value:-100…100, source:"gamepad"}  # optional gamepad heartbeat
