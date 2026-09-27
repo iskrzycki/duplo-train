@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 const DEAD_ZONE = 0.14;
 const POWER_STEP = 5;
 const HEARTBEAT_MS = 100;
+const TRIGGER_THRESHOLD = 0.5;
+const MENU_VECTOR_EPSILON = 0.02;
 
 function stickToPower(axis) {
   if (Math.abs(axis) < DEAD_ZONE) return 0;
@@ -26,24 +28,85 @@ function getConnectedGamepad(index) {
  * Mapping:
  *   left stick Y  → drive power
  *   button 0 (bottom face button) → horn
- *   button 1 (right face button)  → stop
+ *   button 1 (right face button)  → stop / cancel a radial menu
+ *   L1 / L2 / R1 / R2              → hold-to-select effects / colors / beeps / sounds wheels
  */
-export function useGamepad({ enabled, onPower, onStop, onHorn }) {
+export function useGamepad({
+  enabled,
+  menusEnabled,
+  onPower,
+  onStop,
+  onHorn,
+  onMenuOpen,
+  onMenuVector,
+  onMenuConfirm,
+  onMenuCancel,
+}) {
   const [controller, setController] = useState(null);
   const activeIndex = useRef(null);
   const previousButtons = useRef([]);
+  const previousTriggers = useRef({ left: false, right: false });
   const lastPower = useRef(0);
   const lastReportedAt = useRef(0);
-  const callbacks = useRef({ onPower, onStop, onHorn });
+  const activeMenu = useRef(null);
+  const previousMenuVector = useRef({ x: 0, y: 0, magnitude: 0 });
+  const callbacks = useRef({
+    menusEnabled,
+    onPower,
+    onStop,
+    onHorn,
+    onMenuOpen,
+    onMenuVector,
+    onMenuConfirm,
+    onMenuCancel,
+  });
 
   useEffect(() => {
-    callbacks.current = { onPower, onStop, onHorn };
-  }, [onPower, onStop, onHorn]);
+    callbacks.current = {
+      menusEnabled,
+      onPower,
+      onStop,
+      onHorn,
+      onMenuOpen,
+      onMenuVector,
+      onMenuConfirm,
+      onMenuCancel,
+    };
+  }, [menusEnabled, onPower, onStop, onHorn, onMenuOpen, onMenuVector, onMenuConfirm, onMenuCancel]);
 
   useEffect(() => {
     if (!enabled || typeof navigator === "undefined" || !navigator.getGamepads) return;
 
     let frame;
+
+    const resetMenuVector = () => {
+      previousMenuVector.current = { x: 0, y: 0, magnitude: 0 };
+    };
+
+    const cancelMenu = () => {
+      if (!activeMenu.current) return;
+      activeMenu.current = null;
+      resetMenuVector();
+      callbacks.current.onMenuCancel();
+    };
+
+    const confirmMenu = () => {
+      if (!activeMenu.current) return;
+      activeMenu.current = null;
+      resetMenuVector();
+      callbacks.current.onMenuConfirm();
+    };
+
+    const openMenu = (menu) => {
+      activeMenu.current = menu;
+      lastPower.current = 0;
+      resetMenuVector();
+      // Opening a wheel always stops the train, even if the left stick was
+      // already centred. Selecting an effect, color, or sound must never
+      // keep it moving.
+      callbacks.current.onStop();
+      callbacks.current.onMenuOpen(menu);
+    };
 
     const remember = (pad) => {
       setController((current) => {
@@ -55,6 +118,7 @@ export function useGamepad({ enabled, onPower, onStop, onHorn }) {
     };
 
     const stopForSafety = () => {
+      cancelMenu();
       if (lastPower.current === 0) return;
       lastPower.current = 0;
       callbacks.current.onStop();
@@ -64,6 +128,7 @@ export function useGamepad({ enabled, onPower, onStop, onHorn }) {
       if (stop) stopForSafety();
       activeIndex.current = null;
       previousButtons.current = [];
+      previousTriggers.current = { left: false, right: false };
       lastReportedAt.current = 0;
       setController(null);
     };
@@ -79,6 +144,50 @@ export function useGamepad({ enabled, onPower, onStop, onHorn }) {
       activeIndex.current = pad.index;
       remember(pad);
 
+      const buttons = pad.buttons.map((button) => button.pressed);
+      const leftBumper = Boolean(pad.buttons[4]?.pressed || pad.buttons[4]?.value > TRIGGER_THRESHOLD);
+      const rightBumper = Boolean(pad.buttons[5]?.pressed || pad.buttons[5]?.value > TRIGGER_THRESHOLD);
+      const leftTrigger = Boolean(pad.buttons[6]?.pressed || pad.buttons[6]?.value > TRIGGER_THRESHOLD);
+      const rightTrigger = Boolean(pad.buttons[7]?.pressed || pad.buttons[7]?.value > TRIGGER_THRESHOLD);
+
+      if (activeMenu.current && !callbacks.current.menusEnabled) cancelMenu();
+
+      if (!activeMenu.current && callbacks.current.menusEnabled) {
+        if (leftBumper && !previousButtons.current[4]) openMenu("effects");
+        else if (leftTrigger && !previousTriggers.current.left) openMenu("colors");
+        else if (rightBumper && !previousButtons.current[5]) openMenu("beeps");
+        else if (rightTrigger && !previousTriggers.current.right) openMenu("sounds");
+      }
+
+      if (activeMenu.current) {
+        const menu = activeMenu.current;
+        const x = pad.axes[2] ?? 0;
+        const y = pad.axes[3] ?? 0;
+        const magnitude = Math.min(1, Math.hypot(x, y));
+        const previous = previousMenuVector.current;
+        if (
+          Math.abs(x - previous.x) > MENU_VECTOR_EPSILON
+          || Math.abs(y - previous.y) > MENU_VECTOR_EPSILON
+          || Math.abs(magnitude - previous.magnitude) > MENU_VECTOR_EPSILON
+        ) {
+          previousMenuVector.current = { x, y, magnitude };
+          callbacks.current.onMenuVector(menu, { x, y, magnitude });
+        }
+
+        if (buttons[1] && !previousButtons.current[1]) cancelMenu();
+        else if (
+          (menu === "effects" && !leftBumper)
+          || (menu === "colors" && !leftTrigger)
+          || (menu === "beeps" && !rightBumper)
+          || (menu === "sounds" && !rightTrigger)
+        ) confirmMenu();
+
+        previousButtons.current = buttons;
+        previousTriggers.current = { left: leftTrigger, right: rightTrigger };
+        frame = requestAnimationFrame(tick);
+        return;
+      }
+
       const power = stickToPower(pad.axes[1] ?? 0);
       const changed = power !== lastPower.current;
       const heartbeatDue = power !== 0 && now - lastReportedAt.current >= HEARTBEAT_MS;
@@ -88,10 +197,10 @@ export function useGamepad({ enabled, onPower, onStop, onHorn }) {
         callbacks.current.onPower(power);
       }
 
-      const buttons = pad.buttons.map((button) => button.pressed);
       if (buttons[0] && !previousButtons.current[0]) callbacks.current.onHorn();
       if (buttons[1] && !previousButtons.current[1]) callbacks.current.onStop();
       previousButtons.current = buttons;
+      previousTriggers.current = { left: leftTrigger, right: rightTrigger };
 
       frame = requestAnimationFrame(tick);
     };

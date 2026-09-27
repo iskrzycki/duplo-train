@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTrainSocket } from "./useTrainSocket.js";
 import { useDriveControl } from "./useDriveControl.js";
 import { useGamepad } from "./useGamepad.js";
+import { RadialMenu } from "./RadialMenu.jsx";
 
 // ?ws=1234 overrides the WebSocket port (default 8081, see server.js)
 const WS_PORT = new URLSearchParams(location.search).get("ws") ?? 8081;
@@ -56,6 +57,75 @@ const MELODY_BUTTONS = [
   { name: "mario", label: "Mario", emoji: "🍄" },
   { name: "atDoomsGate", label: "At Doom's Gate", emoji: "🤘" },
 ];
+
+const LIGHT_COLOR_WHEEL = [
+  ...LED_ORDER.map((color) => ({
+    id: `led-${color}`,
+    type: "led",
+    color,
+    label: LED_COLORS[color].name,
+    hex: LED_COLORS[color].hex,
+  })),
+  { id: "led-0", type: "led", color: 0, label: "Off", hex: "#2E2E2E" },
+];
+const LIGHT_EFFECT_WHEEL = [
+  ...EFFECT_BUTTONS.map((effect) => ({
+    id: `effect-${effect.name}`,
+    type: "effect",
+    name: effect.name,
+    label: effect.label,
+    emoji: effect.emoji,
+  })),
+  { id: "effect-none", type: "effect", name: "none", label: "Stop effect", emoji: "⏹️" },
+];
+const SOUND_WHEEL = [
+  ...SOUND_BUTTONS.map((sound) => ({
+    id: `sound-${sound.name}`,
+    type: "sound",
+    name: sound.name,
+    label: sound.label,
+    emoji: sound.emoji,
+  })),
+  ...MELODY_BUTTONS.map((melody) => ({
+    id: `melody-${melody.name}`,
+    type: "melody",
+    name: melody.name,
+    label: melody.label,
+    emoji: melody.emoji,
+  })),
+];
+const BEEP_WHEEL = TONES.map((tone) => ({
+  id: `tone-${tone}`,
+  type: "tone",
+  value: tone,
+  label: `Beep ${tone}`,
+  emoji: `♪${tone}`,
+}));
+const RADIAL_MENU_DEAD_ZONE = 0.3;
+
+function itemAtVector(items, { x, y }) {
+  const sector = 360 / items.length;
+  const angle = (Math.atan2(y, x) * 180 / Math.PI + 90 + 360) % 360;
+  return items[Math.round(angle / sector) % items.length];
+}
+
+function radialItems(kind) {
+  switch (kind) {
+    case "colors":
+      return LIGHT_COLOR_WHEEL;
+    case "effects":
+      return LIGHT_EFFECT_WHEEL;
+    case "beeps":
+      return BEEP_WHEEL;
+    default:
+      return SOUND_WHEEL;
+  }
+}
+
+function radialSelection(kind, vector) {
+  if (vector.magnitude < RADIAL_MENU_DEAD_ZONE) return null;
+  return itemAtVector(radialItems(kind), vector);
+}
 
 /* ─────────────────────────── building blocks ─────────────────────────── */
 
@@ -120,7 +190,7 @@ function DriveCard({ power, speed, ready, setPower, stop, gamepad }) {
       </div>
       <div className="gamepad-readout">
         {gamepad
-          ? <>🎮 <b>{gamepad.id}</b> · left stick: drive · bottom button: horn · right button: stop</>
+          ? <>🎮 <b>{gamepad.id}</b> · left stick: drive · L1: effects · L2: colors · R1: beeps · R2: sounds</>
           : "🎮 No gamepad — mouse and touch controls stay available"}
       </div>
       <div className="drive-speedometer">
@@ -266,18 +336,77 @@ export default function App() {
   const { wsStatus, train, logLines, send } = useTrainSocket(WS_URL);
   const status = train?.status ?? "offline";
   const ready = wsStatus === "open" && status === "connected";
+  const [radialMenu, setRadialMenu] = useState(null);
+  const radialMenuRef = useRef(null);
   const { power, setDrivePower, stop } = useDriveControl({
     trainPower: train?.power,
     ready,
     send,
   });
+
+  const closeRadialMenu = useCallback(() => {
+    radialMenuRef.current = null;
+    setRadialMenu(null);
+  }, []);
+
+  const openRadialMenu = useCallback((kind) => {
+    const menu = { kind, selected: null, items: radialItems(kind) };
+    radialMenuRef.current = menu;
+    setRadialMenu(menu);
+  }, []);
+
+  const runRadialAction = useCallback((item) => {
+    if (!ready || !item) return;
+    switch (item.type) {
+      case "led":
+        send({ type: "cmd", action: "led", color: item.color });
+        break;
+      case "effect":
+        send({ type: "cmd", action: "effect", name: item.name });
+        break;
+      case "sound":
+        send({ type: "cmd", action: "sound", name: item.name });
+        break;
+      case "melody":
+        send({ type: "cmd", action: "melody", name: item.name });
+        break;
+      case "tone":
+        send({ type: "cmd", action: "tone", value: item.value });
+        break;
+      default:
+        break;
+    }
+  }, [ready, send]);
+
+  const updateRadialSelection = useCallback((kind, vector) => {
+    const item = radialSelection(kind, vector);
+    const current = radialMenuRef.current;
+    if (!current || current.kind !== kind || current.selected?.id === item?.id) return;
+    const next = { ...current, selected: item };
+    radialMenuRef.current = next;
+    setRadialMenu(next);
+  }, []);
+
+  const confirmRadialMenu = useCallback((item) => {
+    const selected = item ?? radialMenuRef.current?.selected;
+    runRadialAction(selected);
+    closeRadialMenu();
+  }, [closeRadialMenu, runRadialAction]);
+
   const gamepad = useGamepad({
     enabled: true,
+    // Let the wheels open even with no train nearby, so their layout and
+    // controller mapping can be checked safely. Actions still require ready.
+    menusEnabled: true,
     onPower: (value) => setDrivePower(value, { source: "gamepad" }),
     onStop: () => stop({ source: "gamepad" }),
     onHorn: () => {
       if (ready) send({ type: "cmd", action: "sound", name: "HORN" });
     },
+    onMenuOpen: openRadialMenu,
+    onMenuVector: updateRadialSelection,
+    onMenuConfirm: confirmRadialMenu,
+    onMenuCancel: closeRadialMenu,
   });
 
   return (
@@ -329,6 +458,15 @@ export default function App() {
         <FunCard train={train} ready={ready} send={send} />
         <LogCard logLines={logLines} />
       </main>
+
+      {radialMenu && (
+        <RadialMenu
+          menu={radialMenu}
+          preview={!ready}
+          onSelect={confirmRadialMenu}
+          onCancel={closeRadialMenu}
+        />
+      )}
 
       <footer className="footer">
         server.js bridges the train over BLE (node-poweredup) · this panel talks to it via WebSocket · not affiliated with the LEGO Group

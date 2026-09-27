@@ -99,9 +99,9 @@ npm run app:mock   # same, but with a simulated train — no Bluetooth needed
 Open http://localhost:5173 (Vite picks the next port if that one is busy). The panel gives you:
 
 - **Drive** — speed preset bricks, a big STOP, a fine-grained power slider (−100…100), and a live speedometer
-- **Gamepad** — optional browser-native control: left stick drives, button 0 sounds the horn, and button 1 stops. The mouse and touch controls work exactly as before when no controller is connected.
+- **Gamepad** — optional browser-native control: left stick drives, while L1, L2, R1 and R2 open hold-to-select wheels for light effects, colors, numbered beeps and sounds. The mouse and touch controls work exactly as before when no controller is connected.
 - **Status** — current battery level stays visible in the header
-- **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in sounds, the audible tones, and three playTone melodies (🎵 jingle, ⭐ Star Wars-ish, 🍄 Mario-ish)
+- **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in sounds, the audible tones, and four playTone melodies (🎵 jingle, ⭐ Star Wars-ish, 🍄 Mario-ish, 🤘 At Doom's Gate-ish)
 - **Train log** — the server's log mirrored live into the browser, with an optional raw-protocol-frames toggle
 
 ### What the hardware can actually do (sounds & colors)
@@ -143,7 +143,8 @@ Frontend lives in [web/](web/) (Vite + React: [App.jsx](web/src/App.jsx), [useTr
 Pair the controller with the operating system first; the browser's Gamepad API only reads the controller that the OS already exposes. The dashboard remains fully usable without one.
 
 - Left-stick vertical axis controls motor power. A dead zone and a curved response make slow movement near the centre easier.
-- Gamepad button `0` plays the horn; button `1` sends STOP. These are the browser's standard button indices, so non-standard controller mappings may need an adjustment in [`useGamepad.js`](web/src/useGamepad.js).
+- Gamepad button `0` plays the horn; button `1` sends STOP, or cancels an open wheel. These are the browser's standard button indices, so non-standard controller mappings may need an adjustment in [`useGamepad.js`](web/src/useGamepad.js).
+- Hold `L1` to open **Effects**, `L2` for **Colors**, `R1` for the audible **Beeps** (1, 2, 3, 5, 7, 9, 10), and `R2` for **Sounds**. The right stick chooses an option and releasing the held shoulder button/trigger confirms it. The wheels also open as a safe preview when no train is connected; selecting an item then only closes the wheel and sends no command. Opening any wheel while connected immediately stops the train.
 - While driving, the browser sends a gamepad power heartbeat every 100 ms. If `server.js` does not receive one for 400 ms, it stops the train. Losing the controller, hiding the tab, or switching away from it also requests STOP.
 
 ## Talk slides
