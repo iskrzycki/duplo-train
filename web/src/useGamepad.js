@@ -25,8 +25,8 @@ function getConnectedGamepad(index) {
  *
  * Mapping:
  *   left stick Y  → drive power
- *   button 0      → horn
- *   button 1      → stop
+ *   button 0 (bottom face button) → horn
+ *   button 1 (right face button)  → stop
  */
 export function useGamepad({ enabled, onPower, onStop, onHorn }) {
   const [controller, setController] = useState(null);

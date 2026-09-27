@@ -90,23 +90,18 @@ That made me curious, so I installed the app to see what else the train could do
 -->
 
 ---
-layout: atm-split
-surface: light
+layout: atm-light
 deco: hand
-ratio: 0.92fr 1.35fr
 dense: true
 ---
 
 # What the official app does
 
-::right::
-
-<div class="mt-[24px]">
+<div class="mx-auto mt-[10px]" style="width: 78%">
 
 <Shot
   src="/shots/duplo-app.png"
   label="Screenshot — official LEGO DUPLO app"
-  caption="The official app exposes a deliberately small control surface."
   ratio="2556/1179"
   />
 
@@ -922,8 +917,9 @@ layout: atm-end
 
 - Thank you
 - Curiosity and a few tools are enough
-- Everyday electronics are explorable
+- Everyday electronics are worth exploring
 - Have fun
+- Enjoy your break
 
 ---
 
@@ -931,4 +927,6 @@ Thank you,
 
 
 Don’t hesitate to explore. With curiosity and a few tools, we can explore how everyday electronic devices really work and have a lot of fun doing it.
+
+Enjoy your break.
 -->

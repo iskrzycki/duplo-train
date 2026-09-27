@@ -120,7 +120,7 @@ function DriveCard({ power, speed, ready, setPower, stop, gamepad }) {
       </div>
       <div className="gamepad-readout">
         {gamepad
-          ? <>🎮 <b>{gamepad.id}</b> · left stick: drive · A: horn · B: stop</>
+          ? <>🎮 <b>{gamepad.id}</b> · left stick: drive · bottom button: horn · right button: stop</>
           : "🎮 No gamepad — mouse and touch controls stay available"}
       </div>
       <div className="drive-speedometer">
