@@ -208,42 +208,37 @@ deco: none
 clicks: 2
 ---
 
-<div class="atm-reveal-stack">
-  <div v-click.hide="1" class="atm-reveal-card atm-reveal-placeholder">
-    <div class="atm-reveal-placeholder__question">?</div>
-    <h2>Hardware</h2>
-  </div>
+<div class="atm-reveal-title">
+  <h2 v-click.hide="1" class="atm-reveal-layer">Hardware</h2>
+  <h2 v-click="1" class="atm-reveal-layer">nRF52840 dongle</h2>
+</div>
 
-  <div v-click="1" class="atm-reveal-card atm-reveal-content">
-    <h2>nRF52840 dongle</h2>
-    <div class="mt-5 flex items-start justify-center">
-      <div style="width: 140px">
-        <Shot src="/shots/nrf52840.png" plain />
-      </div>
-    </div>
+<div class="atm-reveal-stack atm-reveal-stack--hardware">
+  <div v-click.hide="1" class="atm-reveal-layer atm-reveal-placeholder">
+    <div class="atm-reveal-placeholder__question">?</div>
+  </div>
+  <div v-click="1" class="atm-reveal-layer">
+    <Shot src="/shots/nrf52840.png" label="nRF52840 dongle" plain />
   </div>
 </div>
 
 ::right::
 
-<div class="atm-reveal-stack">
-  <div v-click.hide="2" class="atm-reveal-card atm-reveal-placeholder">
-    <div class="atm-reveal-placeholder__question">?</div>
-    <h2>Software</h2>
-  </div>
+<div class="atm-reveal-title">
+  <h2 v-click.hide="2" class="atm-reveal-layer">Software</h2>
+  <h2 v-click="2" class="atm-reveal-layer">Wireshark</h2>
+</div>
 
-  <div v-click="2" class="atm-reveal-card atm-reveal-content">
-    <h2>Wireshark</h2>
-    <div class="mt-5 flex justify-center">
-      <div style="width: 580px">
-        <Shot
-          src="/shots/wireshark-gui.png"
-          label="Screenshot — Wireshark GUI"
-          ratio="16/9"
-          plain
-          />
-      </div>
-    </div>
+<div class="atm-reveal-stack atm-reveal-stack--software">
+  <div v-click.hide="2" class="atm-reveal-layer atm-reveal-placeholder">
+    <div class="atm-reveal-placeholder__question">?</div>
+  </div>
+  <div v-click="2" class="atm-reveal-layer">
+    <Shot
+      src="/shots/wireshark-gui.png"
+      label="Screenshot — Wireshark GUI"
+      plain
+    />
   </div>
 </div>
 
@@ -517,6 +512,40 @@ Both tabs use handle 000B, but the data goes in different directions.
 -->
 
 ---
+layout: image
+image: /shots/ble-iceberg.png
+backgroundSize: cover
+title: The BLE iceberg
+hideProgress: true
+---
+
+<span class="sr-only">The BLE iceberg. LWP3, advertising, connecting and GATT writes and notifications sit above the water. Below are rotating private addresses, pairing and bonding, frequency hopping, adaptive channel maps, connection events, CSA #1 and CSA #2, clock drift and window widening, and data whitening. I just wanted the train to move.</span>
+
+<!--
+**Key points**
+
+- Our LWP3 commands sit at the tip
+- BLE also handles channel hopping and radio timing
+- This small part is already enough to drive the train
+
+---
+
+We've only touched the tip of the iceberg.
+LWP3 gives meaning to the bytes we send through GATT.
+
+Underneath, the devices hop between radio channels, avoid interference, and keep their clocks in sync.
+The labels below the water show more of BLE in general, including features this train connection does not use.
+
+I just wanted the train to move.
+And this small part is already enough to build our own app.
+
+References:
+- [LEGO Specific GATT Service](https://lego.github.io/lego-ble-wireless-protocol-docs/#lego-specific-gatt-service)
+- [Bluetooth LE Primer](https://www.bluetooth.com/bluetooth-le-primer/)
+- [Bluetooth Link Layer Specification](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-61/out/en/low-energy-controller/link-layer-specification.html)
+-->
+
+---
 layout: atm-statement
 bg: bokeh
 align: center
@@ -579,7 +608,7 @@ clicksStart: 1
 <div class="atm-code-tabs__panel">
 <div class="atm-sub">Discover a hub, connect, and start scanning</div>
 
-```js
+```js {*}{lines:true}
 import { PoweredUP } from 'node-poweredup'
 
 const poweredUP = new PoweredUP()
@@ -607,7 +636,7 @@ poweredUP.scan()
 <div class="atm-code-tabs__panel">
 <div class="atm-sub">Read motion and battery updates from notifications</div>
 
-```js
+```js {*}{lines:true}
 import { Consts } from 'node-poweredup'
 
 const speedometerType = Consts.DeviceType.DUPLO_TRAIN_BASE_SPEEDOMETER
@@ -638,7 +667,7 @@ hub.on('batteryLevel', data => {
 <div class="atm-code-tabs__panel">
 <div class="atm-sub">Find the motor and keep its power command alive</div>
 
-```js
+```js {*}{lines:true}
 import { Consts } from 'node-poweredup'
 
 const motorType = Consts.DeviceType.DUPLO_TRAIN_BASE_MOTOR
@@ -670,7 +699,7 @@ The driver re-sends non-zero power every 100 ms. The hub's motion watchdog stops
 <div class="atm-code-tabs__panel">
 <div class="atm-sub">Turn an RGB request into a color the train understands</div>
 
-```js
+```js {*}{lines:true}
 import { Consts } from 'node-poweredup'
 
 const ledType = Consts.DeviceType.HUB_LED
@@ -683,7 +712,7 @@ await led.setColor(paletteColor)
 ```
 
 <div class="atm-note mt-3">
-The DUPLO LED accepts 10 color values plus off, not arbitrary RGB. The app maps the requested color to the closest of the 10 colors.
+The LED accepts 10 color values. RGB maps to the nearest match.
 </div>
 
 <div class="atm-caption mt-2">
@@ -766,7 +795,7 @@ deco: none
   <li>Battery level</li>
 </ul>
 
-<div class="atm-note mt-5">Measured top speed: 2× the original train.</div>
+<div class="atm-note mt-5">Measured top speed: ~20% faster than the original train.</div>
 
 </div>
 

@@ -7,7 +7,9 @@ const nav = useNav()
 // Use the slide number, not the click count, so the train moves only when
 // the presentation advances to another slide.
 const showProgress = computed(() =>
-  nav.currentPage.value > 1 && nav.currentPage.value < nav.total.value,
+  nav.currentPage.value > 1
+  && nav.currentPage.value < nav.total.value
+  && !nav.currentFrontmatter.value.hideProgress,
 )
 
 const progress = computed(() => {

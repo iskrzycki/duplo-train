@@ -107,6 +107,7 @@ Each one mirrors a specific layout in the template.
 |---|---|---|
 | `atm-cover` | `slideLayout2` + slide 2 | The opening slide |
 | `atm-photo` | custom photo layout | Full-bleed product or object photo |
+| `image` | built-in Slidev layout | Full-screen artwork; pass `image: /shots/ble-iceberg.png` |
 | `atm-section` | `slideLayout4` + slide 12 | Section dividers; pass `number: '01'` |
 | `atm-cards` | slide 11 | A row of numbered orange cards; cards go in `::cards::` |
 | `atm-statement` | slide 3 | One sentence, no furniture; `align: center` to centre it |
@@ -124,6 +125,7 @@ Shared frontmatter knobs:
   `squares` · `ring` · `hand` · `none`
 - `surface` — `dark` or `light` (`atm-split` only)
 - `ratio` — CSS `grid-template-columns` for the split, e.g. `'1.2fr 1fr'`
+- `hideProgress` — `true` hides the train progress footer for full-screen artwork
 
 The ATM 19 lockup only appears on the cover, section dividers, statements and
 the closing slide — the template does the same, and it keeps the logo from

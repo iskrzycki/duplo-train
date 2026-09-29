@@ -354,13 +354,25 @@
 .slidev-vclick-hidden { opacity: 0; transform: translateY(4px); }
 
 /* Two-step reveal on the BLE tooling slide. */
+.atm-reveal-title,
 .atm-reveal-stack {
-  position: relative;
-  min-height: 430px;
+  display: grid;
 }
-.atm-reveal-card {
-  position: absolute;
-  inset: 0;
+.atm-reveal-title { text-align: center; }
+.atm-reveal-stack {
+  max-width: 100%;
+  margin: 20px auto 0;
+}
+.atm-reveal-stack--hardware { width: 140px; }
+.atm-reveal-stack--software { width: 580px; }
+/* Both layers share the image's natural bounds, even before it is revealed. */
+.atm-reveal-layer {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.atm-reveal-layer.slidev-vclick-target {
+  transition: opacity 420ms ease-in-out;
+  transform: none;
 }
 .atm-reveal-placeholder {
   display: flex;
@@ -372,16 +384,12 @@
 }
 .atm-reveal-placeholder__question {
   color: var(--atm-orange);
-  font-size: 112px;
-  font-weight: 300;
+  font-size: 84px;
+  font-weight: 600;
   line-height: 0.9;
 }
-.atm-reveal-placeholder h2 {
-  margin-top: 0.55em;
-  color: var(--atm-paper);
-  font-size: var(--atm-fs-body);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+@media (prefers-reduced-motion: reduce) {
+  .atm-reveal-layer.slidev-vclick-target { transition: none; }
 }
 
 /* Compact packet sequence with one changing Wireshark view below it. */

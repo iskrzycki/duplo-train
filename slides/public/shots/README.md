@@ -14,6 +14,7 @@ the slide at them (`src="/shots/<file>"`) — the dashed placeholder disappears.
 | `wireshark/ADV_IND.png` | Expanded BLE advertising packet with `ADV_IND` |
 | `official-app-gatt.png` | Official app GATT capture |
 | `official-app-gatt-detail.png` | Official app GATT detail |
+| `ble-iceberg.png` | Full-screen BLE iceberg after the packet examples (1672 × 941, AI-generated illustration) |
 | `panel.png` | The demo web panel |
 | `demo.mp4` | The recorded demo (played from the demo slide) |
 | `gamepad.mp4` | Gamepad steering clip (optional) |
