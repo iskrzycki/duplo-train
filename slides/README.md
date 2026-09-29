@@ -18,6 +18,31 @@ npm run dev --prefix slides      # http://localhost:3030
 | `npm run export:png` | One PNG per slide in `dist/png/` |
 | `npm run notes` | Speaker notes as a PDF |
 
+## Cloudflare Pages
+
+The `Deploy slides to Cloudflare Pages` workflow builds and publishes the deck
+after changes are merged into `master`. It can also be started manually from
+the repository's **Actions** tab with **Run workflow**.
+
+Before the first deployment:
+
+1. Create an empty Direct Upload Pages project from the repository root using
+   Wrangler (no manual file upload is required):
+   ```bash
+   npx wrangler login
+   npx wrangler pages project create duplo-train --production-branch master
+   ```
+2. Create a Cloudflare API token with the **Account → Cloudflare Pages → Edit**
+   permission and copy the Cloudflare account ID.
+3. In the GitHub repository, open **Settings → Secrets and variables →
+   Actions** and add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as
+   repository secrets.
+
+Do not connect Cloudflare's Git integration: GitHub Actions builds and uploads
+the presentation to this Direct Upload project. After the workflow completes,
+its deployment log and the Cloudflare dashboard show the public `pages.dev`
+address.
+
 Presenter view with the speaker notes (English) is at
 [localhost:3030/presenter](http://localhost:3030/presenter); the grid of all
 slides is at [/overview](http://localhost:3030/overview). `f` fullscreen,
