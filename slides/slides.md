@@ -65,7 +65,7 @@ I'm Rafał, a software engineer at Allegro.
 
 ---
 layout: atm-photo
-photo: /shots/Duplo-Steam-Train-by-Lego-transparent.png
+photo: /shots/duplo-box-transparent.png
 ---
 
 <!--
@@ -90,7 +90,7 @@ That made me curious, so I installed the app to see what else the train could do
 -->
 
 ---
-layout: atm-light
+layout: atm-dark
 deco: hand
 dense: true
 ---
@@ -126,7 +126,7 @@ I wanted to find out what the app was actually sending.
 -->
 
 ---
-layout: atm-light
+layout: atm-dark
 deco: squares
 dense: true
 ---
@@ -201,7 +201,7 @@ To see what was happening between the app and the train, I needed the right tool
 
 ---
 layout: atm-split
-surface: light
+surface: dark
 ratio: 0.82fr 1.35fr
 dense: true
 deco: none
@@ -295,7 +295,7 @@ Let's follow one interaction from discovering the train to the command that move
 -->
 
 ---
-layout: atm-light
+layout: atm-dark
 deco: none
 dense: true
 top: 100
@@ -333,6 +333,7 @@ clicksStart: 1
       src="/shots/wireshark/GATT_ENGINE.png"
       label="Wireshark frame 3619 — motor command"
       ratio="16/7"
+      plain
       />
   </div>
 </div>
@@ -552,9 +553,10 @@ Let's look at the code.
 
 
 ---
-layout: atm-light
+layout: atm-dark
 deco: chip
 dense: true
+top: 56
 clicks: 4
 clicksStart: 1
 ---
@@ -578,6 +580,8 @@ clicksStart: 1
 <div class="atm-sub">Discover a hub, connect, and start scanning</div>
 
 ```js
+import { PoweredUP } from 'node-poweredup'
+
 const poweredUP = new PoweredUP()
 
 poweredUP.on('discover', async hub => {
@@ -604,6 +608,11 @@ poweredUP.scan()
 <div class="atm-sub">Read motion and battery updates from notifications</div>
 
 ```js
+import { Consts } from 'node-poweredup'
+
+const speedometerType = Consts.DeviceType.DUPLO_TRAIN_BASE_SPEEDOMETER
+const speedometer = await hub.waitForDeviceByType(speedometerType)
+
 speedometer.on('speed', ({ speed }) => {
   console.log(speed)
 })
@@ -630,10 +639,12 @@ hub.on('batteryLevel', data => {
 <div class="atm-sub">Find the motor and keep its power command alive</div>
 
 ```js
-const motor = await hub
-  .waitForDeviceByType(MOTOR)
+import { Consts } from 'node-poweredup'
 
-const driver = makeMotorDriver(motor)
+const motorType = Consts.DeviceType.DUPLO_TRAIN_BASE_MOTOR
+const motor = await hub.waitForDeviceByType(motorType)
+
+const driver = makeMotorDriver(motor) // keep-alive wrapper
 
 driver.set(45)
 driver.stop()
@@ -660,8 +671,10 @@ The driver re-sends non-zero power every 100 ms. The hub's motion watchdog stops
 <div class="atm-sub">Turn an RGB request into a color the train understands</div>
 
 ```js
-const led = await hub
-  .waitForDeviceByType(HUB_LED)
+import { Consts } from 'node-poweredup'
+
+const ledType = Consts.DeviceType.HUB_LED
+const led = await hub.waitForDeviceByType(ledType)
 
 const requestedRgb = '#ff2a00'
 const paletteColor = nearestLegoColor(requestedRgb)
@@ -790,7 +803,7 @@ For this demo, the browser, server, and Bluetooth adapter all run on the same ma
 
 ---
 layout: atm-split
-surface: light
+surface: dark
 deco: hand
 ratio: 0.9fr 1.2fr
 ---
@@ -833,7 +846,7 @@ protocol is understood, the phone is no longer special.
 
 
 ---
-layout: atm-light
+layout: atm-dark
 deco: corner
 dense: true
 ---
@@ -849,7 +862,7 @@ dense: true
   autoreset="slide"
   playsinline
   preload="metadata"
-  style="display: block; width: 78%; height: 335px; object-fit: contain; background: #101820; border: 1px solid rgba(0, 0, 0, 0.18);"
+  style="display: block; width: 78%; height: 335px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
 >
   <source src="/videos/IMG_6800.mp4" type="video/mp4" />
   <source src="/videos/IMG_6800.MOV" type="video/quicktime" />

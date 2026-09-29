@@ -7,7 +7,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <div class="slidev-layout atm-slide atm--light atm-photo">
+  <div class="slidev-layout atm-slide atm--dark atm-photo">
     <img v-if="backdrop" class="atm-photo__backdrop" :src="backdrop" alt="" aria-hidden="true" />
     <img class="atm-photo__image" :src="photo" alt="" :style="{ objectPosition: position }" />
     <div class="atm-photo__body">
@@ -29,7 +29,7 @@ withDefaults(defineProps<{
 }
 
 .atm-photo {
-  background: var(--atm-paper);
+  background: var(--atm-void);
 }
 
 .atm-photo__backdrop {
@@ -61,7 +61,7 @@ withDefaults(defineProps<{
 
 .atm-photo__content :deep(h1) {
   font-size: var(--atm-fs-hero);
-  text-shadow: 0 2px 18px rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.9);
 }
 
 .atm-photo__content :deep(h1 + *) { margin-top: 0.6em; }

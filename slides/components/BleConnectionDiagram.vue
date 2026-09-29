@@ -63,7 +63,7 @@ const activeStep = computed(() => Math.min(3, Math.max(1, clicks.current)))
 .ble-flow {
   margin-top: 0;
   margin-bottom: 0.2em;
-  color: var(--atm-ink);
+  color: var(--atm-paper);
 }
 
 .ble-flow__sequence {
@@ -79,8 +79,8 @@ const activeStep = computed(() => Math.min(3, Math.max(1, clicks.current)))
   align-items: center;
   min-height: 62px;
   padding: 0.55em 0.65em 0.6em;
-  border: 1px solid rgba(0, 0, 0, 0.16);
-  background: rgba(0, 0, 0, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.025);
   transition: border-color 160ms ease, background-color 160ms ease;
 }
 
@@ -150,10 +150,10 @@ const activeStep = computed(() => Math.min(3, Math.max(1, clicks.current)))
   width: 142px;
   padding: 0.32em 0.35em 0.36em;
   transform: translateX(-50%);
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: rgba(0, 0, 0, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.025);
   text-align: center;
-  color: var(--atm-ink);
+  color: var(--atm-paper);
   transition: border-color 160ms ease, background-color 160ms ease;
 }
 

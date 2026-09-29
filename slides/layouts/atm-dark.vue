@@ -6,14 +6,17 @@
     bg: soft | bokeh | orb | orb-hand | void   (default: soft)
     panel: true | 'soft' | false               (default: false)
     dense: true                                 lifts the title to 21.7%
-    deco: none | corner | connector | chip | ring   (default: connector)
+    deco: none | corner | connector | chip | ring | squares | hand
+                                                      (default: connector)
+    top: 100                                         custom content offset in pixels
 -->
 <script setup lang="ts">
 withDefaults(defineProps<{
   bg?: 'soft' | 'bokeh' | 'orb' | 'orb-hand' | 'void'
   panel?: boolean | 'soft'
   dense?: boolean
-  deco?: 'none' | 'corner' | 'connector' | 'chip' | 'ring'
+  deco?: 'none' | 'corner' | 'connector' | 'chip' | 'ring' | 'squares' | 'hand'
+  top?: number
 }>(), { bg: 'soft', panel: false, dense: false, deco: 'connector' })
 </script>
 
@@ -35,10 +38,23 @@ withDefaults(defineProps<{
       <Deco v-if="deco === 'corner'" src="deco-corner" :x="1.7" :y="3.7" :w="16.9" />
       <Deco v-if="deco === 'chip'" src="deco-chip" :x="76" :y="74.3" :w="21.7" />
       <Deco v-if="deco === 'ring'" src="deco-ring" :x="56.4" :y="19.9" :w="46" :opacity="0.75" />
+      <template v-if="deco === 'squares'">
+        <Deco src="deco-corner" :x="1.7" :y="3.7" :w="16.9" />
+        <Deco src="deco-chevrons" :x="0" :y="17.2" :w="8.1" />
+        <Deco src="deco-squares" :x="79" :y="74.7" :w="19.6" />
+      </template>
+      <template v-if="deco === 'hand'">
+        <Deco src="art-hand" :x="64.7" :y="-2" :w="35.3" />
+        <Deco src="deco-connector" :x="-4.5" :y="17.6" :w="15.1" />
+      </template>
     </div>
 
     <div class="atm-slide__body">
-      <div class="atm-content" :class="{ 'atm-content--hi': dense }">
+      <div
+        class="atm-content"
+        :class="{ 'atm-content--hi': dense }"
+        :style="top ? { top: `${top}px` } : undefined"
+      >
         <slot />
       </div>
     </div>

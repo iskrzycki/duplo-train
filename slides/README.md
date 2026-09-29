@@ -3,6 +3,8 @@
 A [Slidev](https://sli.dev) deck for the talk, styled to match the Allegro Tech
 Meeting #19 template supplied by the organiser
 (`Allegro_Prezentacja atm_19_video_20_08.pptx`).
+The published deck uses dark surfaces throughout to keep transitions comfortable
+in a dim presentation room.
 
 ```bash
 npm install --prefix slides
