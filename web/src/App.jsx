@@ -125,8 +125,8 @@ function Card({ color, title, icon, className = "", children }) {
   );
 }
 
-function Pill({ tone, children }) {
-  return <span className={`pill pill-${tone}`}>{children}</span>;
+function Pill({ tone, className = "", children }) {
+  return <span className={`pill pill-${tone} ${className}`}>{children}</span>;
 }
 
 /* ─────────────────────────────── drive card ───────────────────────────── */
@@ -255,7 +255,7 @@ function FunCard({ train, ready, send }) {
         ))}
       </div>
 
-      <h3>Beeps & tunes</h3>
+      <h3>Beeps</h3>
       <div className="beep-row">
         {TONES.map((tone) => (
           <button
@@ -392,7 +392,7 @@ export default function App() {
           <Pill tone={status === "connected" ? "ok" : status === "scanning" ? "warn" : "bad"}>
             🚂 {status === "connected" ? (train?.name ?? "train") : status}
           </Pill>
-          <Pill tone={gamepad.controller ? "ok" : gamepad.supported ? "warn" : "bad"}>
+          <Pill className="gamepad-status" tone={gamepad.controller ? "ok" : gamepad.supported ? "warn" : "bad"}>
             🎮 {gamepad.controller ? "gamepad connected" : gamepad.supported ? "no gamepad" : "Gamepad API unavailable"}
           </Pill>
           <Pill tone={train?.battery == null ? "warn" : train.battery <= 20 ? "bad" : train.battery <= 50 ? "warn" : "ok"}>

@@ -46,7 +46,7 @@ Each line has an elapsed timestamp and a tag:
 | `HUB` | Hub-level events: battery reports, green button, disconnect |
 | `ATTACH` | The hub announcing its internal devices (port → device type) |
 | `TX` | A command we send, at "intent" level (`motor.rampPower(0 → 45)`) |
-| `RAW` | The actual bytes written to the hub (LEGO Wireless Protocol 3.0 frame) |
+| `RAW` | Frames submitted to the BLE transport (LEGO Wireless Protocol 3.0); not proof that the motor moved |
 | `RX` | Parsed sensor values coming back (color, speed) |
 | `TILE` | Reactions to colored tiles in interactive mode |
 
@@ -101,17 +101,18 @@ Open http://localhost:5173 (Vite picks the next port if that one is busy). The p
 - **Drive** — speed preset bricks, a big STOP, a fine-grained power slider (−100…100), and a live speedometer
 - **Gamepad** — optional browser-native control: left stick drives, while L1, L2, R1 and R2 open hold-to-select wheels for light effects, colors, numbered beeps and sounds. The mouse and touch controls work exactly as before when no controller is connected.
 - **Status** — current battery level stays visible in the header
-- **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in sounds, the audible tones, and four playTone melodies (🎵 jingle, ⭐ Star Wars-ish, 🍄 Mario-ish, 🤘 At Doom's Gate-ish)
+- **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in train sounds, and numbered beeps.
 - **Train log** — the server's log mirrored live into the browser, with an optional raw-protocol-frames toggle
 
 ### What the hardware can actually do (sounds & colors)
 
 - **Sounds**: the speaker's SOUND mode has exactly 5 named sounds in the protocol — `BRAKE(3)`, `STATION_DEPARTURE(5)`, `WATER_REFILL(7)`, `HORN(9)`, `STEAM(10)`. There are no other hidden named sounds.
-- **Tones**: the speaker's TONE mode (`playTone(n)`) documents values 1–10, but **4, 6 and 8 are silent** (verified on real hardware), so the panel exposes 1, 2, 3, 5, 7, 9, 10. The melody buttons play tone sequences — notes go out as raw fire-and-forget writes (waiting for per-note acknowledgments added jitter that mangled the rhythm) and support rests. The exact pitch of each tone is firmware-defined, so the Star Wars / Mario buttons chase the *rhythm* of the originals more than the notes (tune them in `MELODIES` in [server.js](server.js)).
-- **Beyond 10?** No — we checked. A full automated sweep of raw values 0–255 through both SOUND and TONE modes on real hardware turned up **nothing beyond the documented values**: the speaker's complete repertoire is the 5 named sounds (3, 5, 7, 9, 10) and the audible tones (1, 2, 3, 5, 7, 9, 10). The dashboard therefore exposes only the documented sounds and audible tones.
+- **Tones**: the speaker's TONE mode (`playTone(n)`) plays firmware-defined effects, including double beeps rather than single sustained pitches. The dashboard exposes the audible beeps 1, 2, 3, 5, 7, 9 and 10; 4, 6 and 8 are silent on the tested train. Custom melody playback and its definitions have been removed; individual beeps remain available in the panel, the gamepad wheel and the WebSocket API.
+- **Beyond 10?** No — we checked. A full automated sweep of raw values 0–255 through both SOUND and TONE modes on real hardware turned up **nothing beyond the documented values**: the speaker's complete repertoire is the 5 named sounds (3, 5, 7, 9, 10) and the audible tone effects (1, 2, 3, 5, 7, 9, 10). The dashboard exposes the five named train sounds and the audible beeps.
 - **The green button is the power button** — the hub reports PRESSED/RELEASED events, but pressing it while connected simply powers the hub off (hence the disconnect). The server logs the press as the explanation; there's no UI widget because the only state you'd ever see is "released".
 - **LED colors**: the palette has 10 lit colors plus off (`0`) — and that's it: the DUPLO LED **ignores RGB-mode writes** (verified on real hardware), so arbitrary colors aren't possible. The panel exposes the ten colors and off directly.
-- **Light effects** are our own invention: the server blinks the LED on a timer ([effects.js](effects.js)) — police double-flash, railroad-crossing blink, rainbow cycle, disco shuffle, and a warm "firebox" flicker. Add your own by extending `LED_EFFECTS`. Implementation note: effect (and all LED) writes bypass node-poweredup's command queue — the queue waits for a per-write acknowledgment and re-sends mode subscriptions, which jams at blink rates — and go out as raw Port Output frames (`0x81, port, 0x10, 0x51, mode, …`, "execute immediately, no feedback").
+- **Light effects** are our own invention: the server blinks the LED on a timer ([effects.js](effects.js)) — police double-flash, railroad-crossing blink, rainbow cycle, disco shuffle, and a warm "firebox" flicker. Add your own by extending `LED_EFFECTS`. Police steps every 180 ms (about 5.6 writes/s). LED and motor writes both bypass node-poweredup's command-feedback queue using raw Port Output frames (`0x81, port, 0x10, 0x51, mode, …`, "execute immediately, no feedback"). This flag is defined in the [LEGO protocol](https://lego.github.io/lego-ble-wireless-protocol-docs/#startup-and-completion-information). We still await the BLE write callback: an effect skips ticks while its previous write is pending, and the motor keeps only the latest pending power or STOP, without accumulating keep-alives.
+- **Shared BLE transport**: all hub messages, including handshake, sensors and sounds, pass through one write queue in [transport.js](transport.js), installed before connecting. All LEGO ports share one BLE characteristic. In the installed `@stoprocent/noble` 2.8.0, starting another write on that characteristic replaces the previous completion callback (`onceExclusive("write")`), leaving the previous promise unresolved. Per-device queues alone cannot prevent this. The shared queue allows only one BLE write at a time. A write timeout after 2 seconds logs `ERR`, discards pending commands and disconnects; the web server then uses its existing reconnect loop. Old motor commands are never replayed after reconnecting.
 
 ### How it talks
 
@@ -127,7 +128,6 @@ client → server   {type:"cmd", action:"led", color:0…10}
 client → server   {type:"cmd", action:"sound", name:"HORN"|"STATION_DEPARTURE"|"WATER_REFILL"|"STEAM"|"BRAKE"}
 client → server   {type:"cmd", action:"tone", value:0…255}
 client → server   {type:"cmd", action:"soundRaw", value:0…255}
-client → server   {type:"cmd", action:"melody", name:"jingle"|"starwars"|"mario"|"atDoomsGate"}
 client → server   {type:"cmd", action:"ledRgb", hex:"#rrggbb"}
 client → server   {type:"cmd", action:"effect", name:"police"|"crossing"|"rainbow"|"disco"|"firebox"|"none"}
 ```
@@ -190,7 +190,9 @@ Common outcomes:
 
 - **Process dies instantly with exit 134 (`SIGABRT`)** — macOS refused Bluetooth access for your terminal app. See *Requirements* above.
 - **Nothing is discovered** — the train auto‑sleeps after a short while; press the green button again. Battery sag also shortens BLE range noticeably.
-- **The motor stops ~200 ms after a drive command** — that's the base's motion watchdog: a one-off power command from standstill is cut almost immediately unless the base senses the wheels turning. The fix (used by the official app too) is to re-send the motor command continuously — `makeMotorDriver()` in [util.js](util.js) does exactly that (every 100 ms while power ≠ 0), and both the web server and the CLI showcase drive through it. If you write your own code, drive through the driver, not `motor.setPower()` directly.
+- **The motor stops ~200 ms after a drive command** — that's the base's motion watchdog: a one-off power command from standstill is cut almost immediately unless the base senses the wheels turning. The fix (used by the official app too) is to re-send the motor command continuously — `makeMotorDriver()` in [driver.js](driver.js) does exactly that (every 100 ms while power ≠ 0), and both the web server and the CLI showcase drive through it. If you write your own code, drive through the driver, not `motor.setPower()` directly.
+- **Driving or light effects freeze while manual colors/sounds still work** — overlapping LED and motor writes can lose a BLE completion callback in the installed noble library (see *Shared BLE transport* above). An effect or motor waiting on that promise then stops sending, while independent manual writes still work. This collision is reproduced by `npm test` using the installed noble characteristic and node-poweredup adapter with only the native binding replaced. The shared queue fixes the callback collision in those tests; hardware validation remains necessary. Restart the server to load the fix: pairing logs should include `BLE writes serialized across all ports`.
+- **Motor command feedback can also stall driving** — node-poweredup 10.1.0's port queue stalls if a `0x82` notification is missing or arrives before the BLE write callback. Even `setPower(..., true)` and `stop()` cannot bypass its buffer-count check. The motor driver avoids this queue using raw `0x10` writes, in addition to the shared BLE queue. `TX panel → drive` reports intent, `RAW` reports a transport submission, and speedometer readings report actual movement. BLE failures are logged as `ERR`.
 - **The motor stops on its own while driving** — same safety, physical flavor: if the wheels can't actually spin (train held in hand, derailed, blocked), the base cuts motor power.
 - **No sound right after connecting** — the speaker needs a beat after the handshake; the script waits before the demo, but keep it in mind in your own code.
 - **`color` events stop after listening to `reflect`/`rgb`** — the color sensor only streams one mode at a time; whichever event you subscribed to last is the active mode.

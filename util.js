@@ -6,6 +6,7 @@
 
 import { PoweredUP, Consts } from "node-poweredup";
 import { log, sleep, enumName, hex } from "./log.js";
+import { installBleWriteQueue } from "./transport.js";
 
 export * from "./log.js";
 
@@ -38,6 +39,15 @@ export function findDuploTrain() {
       clearInterval(reminder);
       poweredUP.stop();
       log("SCAN", "That's our train! Stopping the scan.");
+      // Install before connect(): handshake/subscriptions use the same BLE
+      // characteristic as subsequent LED, motor and speaker commands.
+      installBleWriteQueue(hub, {
+        onStall: (err) => {
+          log("ERR", err.message);
+          hub.disconnect().catch((disconnectError) => log("ERR", `Disconnect failed: ${disconnectError.message}`));
+        },
+      });
+      log("PAIR", "BLE writes serialized across all ports (motor / LED / speaker / setup)");
       resolve(hub);
     });
 

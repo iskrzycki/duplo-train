@@ -6,6 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "test": "node --test",
     "start": "node index.js",
     "start:raw": "node index.js --raw",
     "debug:color": "node debug-color.js",

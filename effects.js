@@ -7,7 +7,7 @@
  */
 
 // Step times stay ≥180 ms: LED writes share the BLE link with the 10 Hz
-// motor keep-alive, and the DUPLO base gets sluggish when flooded.
+// motor keep-alive. Skip ticks while a previous LED write is still pending.
 export const LED_EFFECTS = {
   // double red flash, double blue flash — classic light bar
   police: { emoji: "🚨", ms: 180, steps: [9, 0, 9, 0, 3, 0, 3, 0] },
@@ -24,10 +24,13 @@ export const LED_EFFECTS = {
 /**
  * Drives an effect by calling `setLed(colorId)` on a timer.
  * One animator per train; start() replaces any running effect.
+ * setLed must use the shared hub write queue (transport.js), otherwise a
+ * concurrent motor/speaker write can leave its promise pending forever.
  */
-export function makeLedAnimator(setLed) {
+export function makeLedAnimator(setLed, { onError = () => {} } = {}) {
   let timer = null;
   let active = null;
+  let writing = false;
 
   function stop() {
     if (timer) clearInterval(timer);
@@ -44,7 +47,8 @@ export function makeLedAnimator(setLed) {
       active = name;
       let step = 0;
       let lastColor = null;
-      timer = setInterval(() => {
+      timer = setInterval(async () => {
+        if (writing) return;
         let color;
         if (effect.random) {
           do {
@@ -54,7 +58,10 @@ export function makeLedAnimator(setLed) {
           color = effect.steps[step++ % effect.steps.length];
         }
         lastColor = color;
-        try { setLed(color); } catch { /* train gone mid-blink */ }
+        writing = true;
+        try { await setLed(color); }
+        catch (err) { onError(err); }
+        finally { writing = false; }
       }, effect.ms);
       timer.unref?.();
       return true;

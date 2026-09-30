@@ -159,6 +159,10 @@ body {
 }
 .gamepad-readout b { color: var(--ink); }
 
+/* Temporarily hide gamepad status and control hints. */
+.gamepad-status,
+.gamepad-readout { display: none; }
+
 /* ── speedometer ──────────────────────────────────────────────────────── */
 
 .hint { font-size: 12px; color: #8a97ab; text-transform: none; letter-spacing: 0; }

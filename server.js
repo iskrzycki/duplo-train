@@ -33,43 +33,6 @@ const COLOR_NAMES = {
 const SOUNDS = { BRAKE: 3, STATION_DEPARTURE: 5, WATER_REFILL: 7, HORN: 9, STEAM: 10 };
 const SOUNDS_BY_VALUE = Object.fromEntries(Object.entries(SOUNDS).map(([name, value]) => [value, name]));
 
-// playTone(n) melodies as [tone, gapMs] steps; tone null = a rest (silence).
-// Notes are FIRED-AND-FORGOTTEN over raw writes and the rhythm lives purely
-// in the gaps — awaiting per-note acknowledgments (the old way) added jitter
-// that mangled the tunes. Pitches are still firmware lottery, so the rhythm
-// carries the melody; only tones 1, 3, 5, 9 are used (4/6/8 are mute).
-const MELODIES = {
-  jingle: { // little rising fanfare
-    label: "Jingle",
-    steps: [[1, 280], [3, 280], [5, 280], [9, 560], [null, 140], [5, 280], [9, 900]],
-  },
-  starwars: { // Imperial March: DUN DUN DUN da-DA DUN da-DA DUN
-    label: "Star Wars",
-    steps: [
-      [3, 700], [3, 700], [3, 700],
-      [1, 520], [9, 180], [3, 700],
-      [1, 520], [9, 180], [3, 1200],
-    ],
-  },
-  mario: { // Overworld intro on an eighth-note grid: E E . E . C E . G … g
-    label: "Mario",
-    steps: [
-      [5, 240], [5, 240], [null, 240], [5, 240], [null, 240],
-      [3, 240], [5, 240], [null, 240], [9, 960], [1, 700],
-    ],
-  },
-  atDoomsGate: { // Tone approximation for speaker testing; not an exact soundtrack transcription.
-    label: "At Doom's Gate (approx.)",
-    steps: [
-      [9, 180], [9, 180], [5, 180], [null, 100],
-      [9, 180], [9, 180], [3, 180], [null, 100],
-      [5, 240], [3, 180], [1, 420], [null, 160],
-      [9, 180], [9, 180], [5, 180], [null, 100],
-      [3, 240], [1, 180], [1, 620],
-    ],
-  },
-};
-
 // The 10 lit palette colors plus off, for mapping picker colors to the nearest
 // palette entry (the DUPLO LED ignores RGB-mode writes — palette mode only).
 const PALETTE_RGB = {
@@ -104,12 +67,13 @@ const state = {
   lastSound: null,
 };
 
-let train = null; // active driver: {setPower, stop, playSound, playTone, setLed, setLedRgb}
-let melodyBusy = false;
+let train = null; // active driver: {setPower, stop, playSound, playSoundRaw, playTone, setLed}
 let gamepadWatchdog = null;
 
 // LED effect engine — steps go straight to the train's LED.
-const animator = makeLedAnimator((color) => train?.setLed(color));
+const animator = makeLedAnimator((color) => train?.setLed(color), {
+  onError: (err) => log("ERR", `LED effect write failed: ${err.message}`),
+});
 
 function stopEffect(quiet = false) {
   animator.stop();
@@ -242,19 +206,6 @@ async function handleCommand(cmd) {
       log("TX", `panel → LED effect '${cmd.name}' ${effect.emoji} (${effect.random ? "random colors" : `${effect.steps.length}-step loop`} @ ${effect.ms} ms)`);
       break;
     }
-    case "melody": {
-      const melody = MELODIES[cmd.name] ?? MELODIES.jingle;
-      if (melodyBusy) { log("WARN", "a melody is already playing — patience, maestro"); return; }
-      melodyBusy = true;
-      log("TX", `panel → melody '${melody.label}': ${melody.steps.map(([tone]) => tone ?? "·").join("-")}`);
-      try {
-        for (const [tone, gapMs] of melody.steps) {
-          if (tone != null) train.playToneRaw(tone); // fire-and-forget: gaps alone carry the rhythm
-          await sleep(gapMs);
-        }
-      } finally { melodyBusy = false; }
-      break;
-    }
     case "sound": {
       if (SOUNDS[cmd.name] === undefined) { log("WARN", `unknown sound '${cmd.name}'`); return; }
       state.lastSound = cmd.name;
@@ -263,10 +214,8 @@ async function handleCommand(cmd) {
       break;
     }
     case "tone": {
-      // 1-10 is the documented range, but the value is a raw byte — the
-      // Sound lab may send anything 0-255 to hunt for hidden beeps.
       const tone = clamp(cmd.value, 0, 255);
-      log("TX", `panel → speaker.playTone(${tone})${tone > 10 ? " (uncharted territory!)" : ""}`);
+      log("TX", `panel → speaker.playTone(${tone})`);
       await train.playTone(tone);
       break;
     }
@@ -352,18 +301,13 @@ async function startRealTrain() {
     const driver = makeMotorDriver(motor);
     log("HUB", "Motor keep-alive armed — power is re-sent every 100 ms while driving (DUPLO motion-watchdog workaround)");
 
-    // LED writes go out raw (Port Output 0x81, "execute immediately, no
-    // feedback"), bypassing the library's per-command queue. The queue waits
-    // for a 0x82 acknowledgment per write and re-sends mode subscriptions —
-    // fine for a single click, but at blink-effect rates it jams and the LED
-    // freezes. A raw WriteDirectModeData carries its mode byte itself, so no
-    // subscription or feedback is needed at all.
+    // Like the motor driver, LED writes bypass the library's feedback queue.
+    // WriteDirectModeData includes the mode; 0x10 means execute immediately
+    // without requesting 0x82 feedback. All writes share the transport queue
+    // installed during discovery, so their BLE callbacks cannot overwrite
+    // each other in noble.
     const rawLedWrite = (payload) =>
       led && hub.send(Buffer.from([0x81, led.portId, 0x10, 0x51, ...payload]), Consts.BLECharacteristic.LPF2_ALL);
-    // Same trick for melody notes: no queue, no feedback wait — the melody's
-    // rhythm is carried purely by our sleep() gaps.
-    const rawSpeakerWrite = (payload) =>
-      speaker && hub.send(Buffer.from([0x81, speaker.portId, 0x10, 0x51, ...payload]), Consts.BLECharacteristic.LPF2_ALL);
 
     train = {
       setPower: (p) => driver.set(p),
@@ -371,7 +315,6 @@ async function startRealTrain() {
       playSound: (name) => speaker?.playSound(Consts.DuploTrainBaseSound[name]),
       playSoundRaw: (value) => speaker?.playSound(value),
       playTone: (t) => speaker?.playTone(t),
-      playToneRaw: (t) => rawSpeakerWrite([0x02, t]), // mode 2 = TONE
       setLed: (c) => rawLedWrite([0x00, c]),          // mode 0 = palette color
     };
     state.status = "connected";
@@ -404,7 +347,6 @@ function startMockTrain() {
     playSound(name) { log("RAW", `mock: toot! (${name})`); },
     playSoundRaw(value) { log("RAW", `mock: raw sound ${value}`); },
     playTone(t) { log("RAW", `mock: beep ${t}`); },
-    playToneRaw(t) { log("RAW", `mock: beep ${t} (raw)`); },
     // effects blink ~7×/s — don't narrate every mock step
     setLed(c) { if (!state.effect) log("RAW", `mock: led ${COLOR_NAMES[c]}`); },
   };
