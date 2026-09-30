@@ -206,7 +206,6 @@ body {
 
 .beep-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .beep-btn { font-size: 14px; padding: 11px 12px 8px; }
-.jingle-btn { font-size: 14px; padding-left: 14px; padding-right: 14px; }
 
 /* ── gamepad radial menus ─────────────────────────────────────────────── */
 

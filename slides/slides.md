@@ -145,7 +145,7 @@ dense: true
 
 </PanelCard>
 
-<PanelCard v-click accent title="Bluetooth Low Energy">
+<PanelCard v-click accent title="Bluetooth Low Energy (BLE)">
 
 - Short attribute messages
 - Sleeps between events
@@ -713,13 +713,6 @@ await led.setColor(paletteColor)
 
 <div class="atm-note mt-3">
 The LED accepts 10 color values. RGB maps to the nearest match.
-</div>
-
-<div class="atm-caption mt-2">
-  Palette reference:
-  <a href="https://lego.github.io/lego-ble-wireless-protocol-docs/#output-sub-command-setrgbcolorno-colorno-n-a" target="_blank" rel="noreferrer">
-    LEGO BLE protocol docs · SetRgbColorNo
-  </a>
 </div>
 
 </div>

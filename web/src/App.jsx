@@ -51,13 +51,6 @@ const EFFECT_BUTTONS = [
 // tones 4, 6 and 8 exist in the protocol but are silent on the real train
 const TONES = [1, 2, 3, 5, 7, 9, 10];
 
-const MELODY_BUTTONS = [
-  { name: "jingle", label: "Jingle", emoji: "🎵" },
-  { name: "starwars", label: "Star Wars", emoji: "⭐" },
-  { name: "mario", label: "Mario", emoji: "🍄" },
-  { name: "atDoomsGate", label: "At Doom's Gate", emoji: "🤘" },
-];
-
 const LIGHT_COLOR_WHEEL = [
   ...LED_ORDER.map((color) => ({
     id: `led-${color}`,
@@ -85,13 +78,6 @@ const SOUND_WHEEL = [
     name: sound.name,
     label: sound.label,
     emoji: sound.emoji,
-  })),
-  ...MELODY_BUTTONS.map((melody) => ({
-    id: `melody-${melody.name}`,
-    type: "melody",
-    name: melody.name,
-    label: melody.label,
-    emoji: melody.emoji,
   })),
 ];
 const BEEP_WHEEL = TONES.map((tone) => ({
@@ -269,7 +255,7 @@ function FunCard({ train, ready, send }) {
         ))}
       </div>
 
-      <h3>Beeps & tunes <span className="hint">(the audible tones — 4, 6 and 8 are mute)</span></h3>
+      <h3>Beeps & tunes</h3>
       <div className="beep-row">
         {TONES.map((tone) => (
           <button
@@ -279,17 +265,6 @@ function FunCard({ train, ready, send }) {
             onClick={() => send({ type: "cmd", action: "tone", value: tone })}
           >
             ♪{tone}
-          </button>
-        ))}
-        {MELODY_BUTTONS.map((melody) => (
-          <button
-            key={melody.name}
-            className="brick-btn brick-green beep-btn jingle-btn"
-            disabled={!ready}
-            title={melody.name === "atDoomsGate" ? "Tone approximation for the train speaker" : "A little playTone melody"}
-            onClick={() => send({ type: "cmd", action: "melody", name: melody.name })}
-          >
-            {melody.emoji} {melody.label}
           </button>
         ))}
       </div>
@@ -366,9 +341,6 @@ export default function App() {
         break;
       case "sound":
         send({ type: "cmd", action: "sound", name: item.name });
-        break;
-      case "melody":
-        send({ type: "cmd", action: "melody", name: item.name });
         break;
       case "tone":
         send({ type: "cmd", action: "tone", value: item.value });
@@ -469,7 +441,7 @@ export default function App() {
       )}
 
       <footer className="footer">
-        server.js bridges the train over BLE (node-poweredup) · this panel talks to it via WebSocket · not affiliated with the LEGO Group
+        not affiliated with the LEGO Group
       </footer>
     </div>
   );
