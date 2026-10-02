@@ -23,7 +23,7 @@ fonts:
   serif: 'Open Sans'
   mono: 'JetBrains Mono'
   weights: '300,400,600,700'
-  provider: google
+  provider: none
 
 highlighter: shiki
 colorSchema: dark
@@ -745,20 +745,20 @@ dense: true
 deco: none
 ---
 
-# The result
+# Mission Control
 
-<div class="atm-sub">A custom web app, with the train still using BLE</div>
-
-<div class="grid grid-cols-2 gap-5 mt-5 atm-result-grid">
+<div class="grid gap-5 mt-5 atm-result-grid" style="grid-template-columns: 1.25fr 0.75fr">
 
 <div>
 
-<div class="atm-kicker">Features</div>
+<div class="atm-kicker">App capabilities</div>
 
 <ul class="mt-2">
-  <li>Battery level</li>
-  <li>More sounds: tones and melodies</li>
-  <li>More lights: palette and effects</li>
+  <li>20% higher top speed</li>
+  <li>Adjustable speed</li>
+  <li>10 light colors</li>
+  <li>5 sounds</li>
+  <li>7 beeps</li>
 </ul>
 
 </div>
@@ -771,8 +771,6 @@ deco: none
   <li>Speedometer</li>
   <li>Battery level</li>
 </ul>
-
-<div class="atm-note mt-5">Measured top speed: ~20% faster than the original train.</div>
 
 </div>
 
@@ -810,13 +808,14 @@ For this demo, the browser, server, and Bluetooth adapter all run on the same ma
 ---
 layout: atm-split
 surface: dark
-deco: hand
-ratio: 0.9fr 1.2fr
+bg: bokeh
+panel: soft
+ratio: 0.95fr 1.15fr
+dense: true
+deco: none
 ---
 
-# BONUS: GAMEPAD.
-
-<div class="atm-sub">A different controller for the same BLE commands</div>
+# GAMEPAD SUPPORT
 
 - Gamepad pairs directly with the host computer
 - Works in Safari, but not in Chrome on this setup
@@ -824,9 +823,9 @@ ratio: 0.9fr 1.2fr
 
 ::right::
 
-<div class="mt-[130px]">
+<div class="flex justify-center">
 
-<Shot label="Clip — gamepad steering" hint="public/shots/gamepad.mp4" ratio="16/9" />
+<GamepadDemo />
 
 </div>
 
@@ -853,7 +852,7 @@ deco: corner
 dense: true
 ---
 
-# DEMO - Drag race
+# The Fast and the Curious
 
 <div class="mt-4 flex justify-center" style="transform: translateY(-50px);">
 
@@ -889,6 +888,46 @@ separately.
 
 
 ---
+layout: atm-dark
+deco: corner
+dense: true
+---
+
+# A dashboard nobody asked for
+
+<div class="mt-4 flex justify-center" style="transform: translateY(-50px);">
+
+<SlidevVideo
+  controls
+  autoreset="slide"
+  playsinline
+  preload="metadata"
+  style="display: block; width: 78%; height: 400px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
+>
+  <source src="/videos/demo.mp4" type="video/mp4" />
+  <p>
+    This browser cannot play the demo. Open
+    <a href="/videos/demo.mp4">the MP4 file</a> directly.
+  </p>
+</SlidevVideo>
+
+</div>
+
+<!--
+**Key points**
+
+- The custom dashboard controls the train
+- A gamepad provides another controller
+- Keep this recording as a live-demo fallback
+
+---
+
+This recording shows the custom dashboard and gamepad controlling the train.
+Keep it as a fallback: Bluetooth discovery can be fragile in a crowded room.
+-->
+
+
+---
 layout: atm-end
 ---
 
@@ -913,6 +952,12 @@ layout: atm-end
     <span>Protocol</span>
     <a href="https://lego.github.io/lego-ble-wireless-protocol-docs/" target="_blank" rel="noreferrer">
       LEGO BLE Wireless Protocol Docs
+    </a>
+  </div>
+  <div>
+    <span>This deck</span>
+    <a href="https://duplo-train.pages.dev/" target="_blank" rel="noreferrer">
+      duplo-train.pages.dev · live
     </a>
   </div>
 </div>

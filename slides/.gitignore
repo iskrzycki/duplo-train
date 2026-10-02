@@ -2,3 +2,4 @@ node_modules/
 dist/
 .slidev/
 *.local
+/original-videos/demo.MOV

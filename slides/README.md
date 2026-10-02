@@ -72,9 +72,12 @@ read out of the organiser's `.pptx` (which is a ZIP of XML).
 **Type** — content slides follow the organiser's template: Open Sans Bold
 titles and Open Sans Light body copy. The opening cover instead follows the
 speaker-board PDF, using Inter Thin for the headline and lighter Inter weights
-for the speaker details. Both families are loaded from Google Fonts, along with
-Noto Color Emoji so `🚂` survives PDF export (headless Chromium has no system
-emoji font).
+for the speaker details. The deck also uses JetBrains Mono for code and Noto
+Color Emoji so `🚂` survives PDF export (headless Chromium has no system emoji
+font). WOFF2 files are bundled under `styles/fonts/` and declared in
+`styles/fonts.css`; Slidev's Google Fonts provider is disabled, so running or
+building the deck does not fetch fonts from the network. SIL Open Font License
+notices are in `styles/fonts/licenses/`.
 
 **Geometry** — the template canvas is 20104100 × 11309350 EMU
 (21.98in × 12.36in, 890.5pt tall). This deck's canvas is 1280 × 720, the same
@@ -172,7 +175,10 @@ with white slides, and a horizontal slide makes those swaps lurch.
 
 - **Drop the remaining pictures and captures into `public/shots/`**. The
   placeholder disappears when the matching `<Shot>` gets a real `src`.
-- Add the official-app GATT screenshots, the Wireshark screenshots, the final
-  web-panel image, and the recorded demo before presenting.
-- Keep the recorded demo as a fallback. A conference room is crowded 2.4 GHz,
-  and BLE discovery is the fragile part of the live demo.
+- Add the official-app GATT screenshots, the Wireshark screenshots, and the
+  final web-panel image before presenting.
+- Keep the recorded demos in `public/videos/` as fallbacks. A conference room
+  is crowded 2.4 GHz, and BLE discovery is the fragile part of a live demo.
+- Keep full-resolution source videos in `original-videos/`, outside the
+  presentation bundle; large originals may need separate storage rather than
+  Git.
