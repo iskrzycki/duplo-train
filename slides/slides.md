@@ -36,13 +36,14 @@ mdc: true
 layout: atm-cover
 ---
 
-# How I hacked my son's<br>LEGO Duplo train
+<div class="atm-cover__copy">
+  <h1>How I hacked my<br>son's LEGO Duplo<br>train</h1>
+</div>
 
-<div class="atm-lead">Talking to a Bluetooth Low Energy toy</div>
-
-::foot::
-
-Rafał Iskrzycki · Allegro Tech Meeting #19
+<div class="atm-cover__speaker">
+  <p class="atm-cover__name">Rafał Iskrzycki</p>
+  <p class="atm-cover__role">Senior Front-End Software Engineer</p>
+</div>
 
 <!--
 **Key points**
@@ -110,7 +111,8 @@ dense: true
 <!--
 **Key points**
 
-- A deliberately small control surface
+- Looks like this
+- Nice animations at start
 - Every tap sends a message
 - What does the app actually send?
 
@@ -141,7 +143,7 @@ dense: true
 
 - Continuous streams
 - Higher power use
-- Audio and serial links
+- Audio and game controllers
 
 </PanelCard>
 
@@ -149,7 +151,7 @@ dense: true
 
 - Short attribute messages
 - Sleeps between events
-- Sensors, trackers and toys
+- Sensors, fitness bands, item trackers and toys
 
 </PanelCard>
 
@@ -170,7 +172,9 @@ Before looking for that message, one distinction matters.
 Bluetooth is one brand name covering two quite different protocol stacks.
 
 Bluetooth Classic works well when a device needs a steady connection, for example with headphones or game controllers.
-Bluetooth Low Energy is designed for short exchanges and can sleep between them, which makes it a good fit for sensors, trackers, and toys.
+Bluetooth Low Energy is designed for short exchanges and can sleep between them, which makes it a good fit for sensors, fitness bands, item trackers such as an AirTag, and toys.
+
+An AirTag is a useful example of an item tracker: Bluetooth lets nearby devices in the Find My network detect it, while Ultra Wideband enables Precision Finding.
 
 The train uses Bluetooth Low Energy — BLE for short.
 -->
@@ -246,9 +250,12 @@ clicks: 2
 **Key points**
 
 - nRF52840 dongle with sniffer firmware
+- Adapter needed for macbook
 - It listens without connecting
 - Catch the connection start
 - Wireshark explains the traffic
+- Some plugins needed
+- With the right tools, we can sniff the official app
 
 ---
 
@@ -265,28 +272,6 @@ Then, the software: Wireshark.
 It lets me record the traffic and inspect each packet layer by layer.
 
 So, the dongle listens, and Wireshark helps me make sense of what it hears.
--->
-
----
-layout: atm-section
----
-
-# Sniffing the official app
-
-<div class="atm-lead">From a button press to the packets behind it</div>
-
-<!--
-**Key points**
-
-- Press a button in the official app
-- Watch the radio traffic
-- Follow one motor action
-
----
-
-Now I could press a button in the official app and watch what happened over the air.
-
-Let's follow one interaction from discovering the train to the command that moves it.
 -->
 
 ---
@@ -563,7 +548,7 @@ align: center
 <!--
 **Key points**
 
-- Can I build my own app?
+- The facts discussed bafore sCan I build my own app?
 - My first Bluetooth project
 - `node-poweredup` provides a simple API
 - Time to look at code
@@ -580,7 +565,6 @@ It handles Bluetooth and the LEGO protocol and gives me a simple JavaScript API.
 Let's look at the code.
 -->
 
-
 ---
 layout: atm-dark
 deco: chip
@@ -592,7 +576,7 @@ clicksStart: 1
 
 # Code samples
 
-<div class="atm-code-tabs">
+<div class="atm-code-tabs atm-code-samples">
 
 <v-switch>
 
@@ -799,7 +783,7 @@ deco: none
 <div class="mt-0 flex justify-center">
 
 <div style="width: 520px">
-  <Shot src="/shots/poweredup-app.png" caption="Screenshot — final web app" plain />
+  <Shot src="/shots/poweredup-app.png" plain />
 </div>
 
 </div>
@@ -834,13 +818,9 @@ ratio: 0.9fr 1.2fr
 
 <div class="atm-sub">A different controller for the same BLE commands</div>
 
-<v-clicks>
-
-- Browser Gamepad API
-- WebSocket to the Node server
-- The train still receives LWP3 writes
-
-</v-clicks>
+- Gamepad pairs directly with the host computer
+- Works in Safari, but not in Chrome on this setup
+- Uses the browser's Gamepad API
 
 ::right::
 
@@ -873,48 +853,38 @@ deco: corner
 dense: true
 ---
 
-# DEMO
+# DEMO - Drag race
 
-<div class="atm-sub">Train in motion — first capture</div>
-
-<div class="mt-4 flex justify-center">
+<div class="mt-4 flex justify-center" style="transform: translateY(-50px);">
 
 <SlidevVideo
   controls
   autoreset="slide"
   playsinline
   preload="metadata"
-  style="display: block; width: 78%; height: 335px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
+  style="display: block; width: 78%; height: 400px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
 >
-  <source src="/videos/IMG_6800.mp4" type="video/mp4" />
-  <source src="/videos/IMG_6800.MOV" type="video/quicktime" />
+  <source src="/videos/drag-race.mp4" type="video/mp4" />
   <p>
     This browser cannot play the demo. Open
-    <a href="/videos/IMG_6800.mp4">the MP4 file</a> directly.
+    <a href="/videos/drag-race.mp4">the MP4 file</a> directly.
   </p>
 </SlidevVideo>
 
 </div>
 
-<div class="atm-caption mt-2 text-center">iPhone test recording · 4.7 s</div>
-
 <!--
 **Key points**
 
-- Short iPhone test recording
+- Recorded drag-race run
 - Start it with the built-in controls
-- MP4 first, MOV as fallback
-- The video resets with the slide
+- The video resets when leaving the slide
 
 ---
 
-This is the short test recording from the iPhone. Start it manually with the
-built-in controls. The slide uses the H.264 MP4 copy first, with the original
-MOV as a fallback. The video resets when leaving the slide so the demo starts
-from the beginning each time.
-
-Implementation references: https://sli.dev/builtin/components.html and
-https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Video_codecs
+This is the recorded drag-race demo. Start it manually with the built-in
+controls. The slide uses the compressed MP4 copy; the original MOV is kept
+separately.
 -->
 
 

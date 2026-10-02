@@ -98,7 +98,7 @@ npm run app:mock   # same, but with a simulated train — no Bluetooth needed
 
 Open http://localhost:5173 (Vite picks the next port if that one is busy). The panel gives you:
 
-- **Drive** — speed preset bricks, a big STOP, a fine-grained power slider (−100…100), and a live speedometer
+- **Drive** — speed preset bricks, a big STOP, a fine-grained power slider (−100…100), and a live speedometer. Set a delay in seconds for a forward departure at full power; STOP cancels the countdown and stops the train, and a completed departure keeps running until STOP.
 - **Gamepad** — optional browser-native control: left stick drives, while L1, L2, R1 and R2 open hold-to-select wheels for light effects, colors, numbered beeps and sounds. The mouse and touch controls work exactly as before when no controller is connected.
 - **Status** — current battery level stays visible in the header
 - **Lights & Sounds** — hub LED palette + off + a full RGB color picker, LED light effects (🚨 police, 🚧 crossing, 🌈 rainbow, 🪩 disco, 🔥 firebox), the 5 built-in train sounds, and numbered beeps.

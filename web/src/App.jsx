@@ -131,8 +131,21 @@ function Pill({ tone, className = "", children }) {
 
 /* ─────────────────────────────── drive card ───────────────────────────── */
 
-function DriveCard({ power, speed, ready, setPower, stop, gamepad }) {
+function DriveCard({
+  power,
+  speed,
+  ready,
+  setPower,
+  stop,
+  gamepad,
+  delaySeconds,
+  setDelaySeconds,
+  countdown,
+  startDelayedDrive,
+}) {
   const gaugePct = Math.min(Math.abs(speed), 400) / 400 * 50;
+  const delay = Number(delaySeconds);
+  const validDelay = delaySeconds.trim() !== "" && Number.isInteger(delay) && delay >= 0 && delay <= 3600;
 
   const onSlide = (event) => {
     setPower(Number(event.target.value));
@@ -152,6 +165,37 @@ function DriveCard({ power, speed, ready, setPower, stop, gamepad }) {
             {preset.label}
           </button>
         ))}
+      </div>
+      <div className="delayed-start">
+        <h3>Delayed departure</h3>
+        <label className="delay-input-label">
+          Start in
+          <input
+            className="delay-input"
+            type="number"
+            min="0"
+            max="3600"
+            step="1"
+            value={delaySeconds}
+            disabled={!ready || countdown !== null}
+            onChange={(event) => setDelaySeconds(event.target.value)}
+            aria-label="Delay before departure in seconds"
+          />
+          seconds
+        </label>
+        <button
+          className="brick-btn brick-green delayed-start-btn"
+          disabled={!ready || !validDelay || countdown !== null}
+          onClick={startDelayedDrive}
+        >
+          🚦 {delay === 0 ? "Start now at full speed" : `Start after ${delay} sec`}
+        </button>
+        {countdown !== null && (
+          <div className="countdown-status" role="status" aria-live="polite">
+            🚂 Full-speed departure in <b>{countdown}</b> {countdown === 1 ? "second" : "seconds"}…
+          </div>
+        )}
+        <p>Counts down, then drives forward at full power until STOP.</p>
       </div>
       <button
         className="brick-btn brick-red stop-btn"
@@ -312,12 +356,79 @@ export default function App() {
   const status = train?.status ?? "offline";
   const ready = wsStatus === "open" && status === "connected";
   const [radialMenu, setRadialMenu] = useState(null);
+  const [delaySeconds, setDelaySeconds] = useState("3");
+  const [countdown, setCountdown] = useState(null);
   const radialMenuRef = useRef(null);
+  const delayedStartTimer = useRef(null);
   const { power, setDrivePower, stop } = useDriveControl({
     trainPower: train?.power,
     ready,
     send,
   });
+
+  const cancelDelayedStart = useCallback(() => {
+    clearInterval(delayedStartTimer.current);
+    delayedStartTimer.current = null;
+    setCountdown(null);
+  }, []);
+
+  const setManualDrivePower = useCallback((value, options) => {
+    cancelDelayedStart();
+    setDrivePower(value, options);
+  }, [cancelDelayedStart, setDrivePower]);
+
+  const stopTrain = useCallback((options) => {
+    cancelDelayedStart();
+    stop(options);
+  }, [cancelDelayedStart, stop]);
+
+  const startDelayedDrive = useCallback(() => {
+    const seconds = Number(delaySeconds);
+    if (
+      !ready
+      || delaySeconds.trim() === ""
+      || !Number.isInteger(seconds)
+      || seconds < 0
+      || seconds > 3600
+    ) return;
+
+    cancelDelayedStart();
+    if (seconds === 0) {
+      setDrivePower(100, { force: true });
+      return;
+    }
+
+    // Keep the train stopped during the countdown; the scheduled action is
+    // canceled if the user presses STOP, takes manual control, or disconnects.
+    stop();
+    const deadline = Date.now() + seconds * 1000;
+    setCountdown(seconds);
+    delayedStartTimer.current = setInterval(() => {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        clearInterval(delayedStartTimer.current);
+        delayedStartTimer.current = null;
+        setCountdown(null);
+        setDrivePower(100, { force: true });
+        return;
+      }
+      setCountdown(Math.ceil(remaining / 1000));
+    }, 100);
+  }, [cancelDelayedStart, delaySeconds, ready, setDrivePower, stop]);
+
+  useEffect(() => {
+    if (!ready) cancelDelayedStart();
+  }, [ready, cancelDelayedStart]);
+
+  useEffect(() => () => clearInterval(delayedStartTimer.current), []);
+
+  useEffect(() => {
+    const cancelWhenHidden = () => {
+      if (document.hidden) cancelDelayedStart();
+    };
+    document.addEventListener("visibilitychange", cancelWhenHidden);
+    return () => document.removeEventListener("visibilitychange", cancelWhenHidden);
+  }, [cancelDelayedStart]);
 
   const closeRadialMenu = useCallback(() => {
     radialMenuRef.current = null;
@@ -370,8 +481,8 @@ export default function App() {
     // Let the wheels open even with no train nearby, so their layout and
     // controller mapping can be checked safely. Actions still require ready.
     menusEnabled: true,
-    onPower: (value) => setDrivePower(value, { source: "gamepad" }),
-    onStop: () => stop({ source: "gamepad" }),
+    onPower: (value) => setManualDrivePower(value, { source: "gamepad" }),
+    onStop: () => stopTrain({ source: "gamepad" }),
     onHorn: () => {
       if (ready) send({ type: "cmd", action: "sound", name: "HORN" });
     },
@@ -423,9 +534,13 @@ export default function App() {
           power={power}
           speed={train?.speed ?? 0}
           ready={ready}
-          setPower={setDrivePower}
-          stop={stop}
+          setPower={setManualDrivePower}
+          stop={stopTrain}
           gamepad={gamepad.controller}
+          delaySeconds={delaySeconds}
+          setDelaySeconds={setDelaySeconds}
+          countdown={countdown}
+          startDelayedDrive={startDelayedDrive}
         />
         <FunCard train={train} ready={ready} send={send} />
         <LogCard logLines={logLines} />

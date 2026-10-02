@@ -69,10 +69,12 @@ read out of the organiser's `.pptx` (which is a ZIP of XML).
 | `--atm-void` | `#051018` | The one solid dark background (`slideLayout12`) |
 | `--atm-panel` | `#000` @ 74.9% | The inset panel on dark slides (`dk1` at `alpha="74902"`) |
 
-**Type** — the template embeds Open Sans and Open Sans Light. Titles are Open
-Sans Bold, uppercase, tight leading, and never underlined. Body copy is Open
-Sans Light (weight 300). Both are pulled from Google Fonts, plus Noto Color
-Emoji so `🚂` survives PDF export (headless Chromium has no system emoji font).
+**Type** — content slides follow the organiser's template: Open Sans Bold
+titles and Open Sans Light body copy. The opening cover instead follows the
+speaker-board PDF, using Inter Thin for the headline and lighter Inter weights
+for the speaker details. Both families are loaded from Google Fonts, along with
+Noto Color Emoji so `🚂` survives PDF export (headless Chromium has no system
+emoji font).
 
 **Geometry** — the template canvas is 20104100 × 11309350 EMU
 (21.98in × 12.36in, 890.5pt tall). This deck's canvas is 1280 × 720, the same
@@ -90,9 +92,12 @@ ratio, so template points map to whole pixels at `720 / 890.5 = 0.8085`:
 Every number lives in [`styles/tokens.css`](styles/tokens.css) with the original
 value in a comment, so it stays checkable against the source file.
 
-**Artwork** — `public/atm/` holds the template's own images. Full-slide
-backgrounds were re-encoded as JPEG at 1920px (they carry no alpha); the line-art
-decorations stay PNG with transparency. 1.2 MB in total, down from 5.2 MB raw.
+**Artwork** — `public/atm/` holds the template's own images. The cover
+uses `cover-background.png`, a lossless render of the organiser's speaker-board
+PDF with the text removed. Its original orange treatment, soft photo fade,
+logo and circuit artwork stay intact; the heading and speaker details are still
+editable text in `slides.md`. Other full-slide backgrounds were re-encoded as
+JPEG at 1920px (they carry no alpha); the line-art decorations stay PNG.
 
 Three pieces are extracted but not yet placed on a slide, in case you want them:
 `deco-binary.png` (scattered binary text), `deco-grid.png` (a fading square grid)

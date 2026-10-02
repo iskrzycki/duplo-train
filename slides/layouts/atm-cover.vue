@@ -1,43 +1,83 @@
 <!--
-  Cover, after the template's slideLayout2 + slide 2:
-  full-bleed orb/hand artwork, 72pt title at 39.8% down, standfirst under it,
-  ATM 19 lockup bottom-right.
+  The artwork is taken from the organiser's speaker-board PDF, with only its
+  typeset copy removed. Keeping the photo, colour treatment, blur, event mark
+  and circuit details in one lossless image preserves their exact composition;
+  the heading and speaker details below remain editable Slidev text.
 -->
 <template>
   <div class="slidev-layout atm-slide atm--dark atm-cover">
-    <div class="atm-slide__bg" style="background-image: url(/atm/bg-orb-hand.jpg)" />
+    <div class="atm-cover__background" aria-hidden="true" />
     <div class="atm-slide__body">
-      <div class="atm-cover__content">
+      <div class="atm-cover__slot">
         <slot />
       </div>
-      <div class="atm-foot atm-cover__foot">
-        <slot name="foot" />
-      </div>
     </div>
-    <AtmLogo />
   </div>
 </template>
 
 <style scoped>
-/* Template slide 2 sets the hero at 39.8% down with the standfirst in the
-   footnote band at 83.7%; the title box here is widened to 26% from the right
-   so a five-word English title still breaks where the <br> asks it to. */
-.atm-cover__content {
+.atm-cover {
+  background: #000;
+}
+
+.atm-cover__background {
   position: absolute;
-  left: var(--atm-gutter);
-  right: 26%;
-  top: 268px;                 /* 37.2% of 720 */
+  inset: 0;
+  background: url('/atm/cover-background.png') center / 100% 100% no-repeat;
 }
-/* .atm-foot anchors to its parent's bottom-left; on the cover that parent is
-   the whole slide, so restore the gutter and the 58px baseline by hand. */
-.atm-cover__foot {
-  left: var(--atm-gutter);
-  right: 30%;
-  bottom: 58px;
+
+.atm-cover__slot {
+  position: absolute;
+  inset: 0;
 }
-.atm-cover__content :deep(h1) {
-  font-size: var(--atm-fs-hero);
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
+
+/* The fractional offsets account for the PDF's glyph placement in Chromium. */
+.atm-cover__slot :deep(.atm-cover__copy) {
+  position: absolute;
+  left: calc(55.25% - 0.5px);
+  right: 6%;
+  top: 40.05%;
 }
-.atm-cover__content :deep(h1 + *) { margin-top: 1.15em; }
+
+.atm-cover__slot :deep(.atm-cover__copy h1) {
+  max-width: 510px;
+  font-family: 'Inter', 'Open Sans', sans-serif;
+  color: #eeece1;
+  font-size: 48.5px;
+  font-weight: 100;
+  line-height: 1.08;
+  letter-spacing: 0;
+  text-transform: none;
+  text-rendering: geometricPrecision;
+}
+
+.atm-cover__slot :deep(.atm-cover__speaker) {
+  position: absolute;
+  top: 77.2%;
+  left: calc(55.25% - 0.5px);
+  right: 5%;
+}
+
+.atm-cover__slot :deep(.atm-cover__speaker p) {
+  margin: 0;
+  color: #eeece1;
+  line-height: 1.4;
+  text-rendering: geometricPrecision;
+}
+
+.atm-cover__slot :deep(.atm-cover__speaker .atm-cover__name) {
+  margin-bottom: 0.28em;
+  font-family: 'Inter', 'Open Sans', sans-serif;
+  font-size: 28.315px; /* 35pt on the PDF's 890pt-high page */
+  font-weight: 300;
+}
+
+.atm-cover__slot :deep(.atm-cover__speaker .atm-cover__role) {
+  position: relative;
+  left: -1px;
+  top: -1px;
+  font-family: 'Inter', 'Open Sans', sans-serif;
+  font-size: 20.225px; /* 25pt on the PDF's 890pt-high page */
+  font-weight: 200;
+}
 </style>

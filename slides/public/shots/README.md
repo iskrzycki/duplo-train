@@ -16,7 +16,6 @@ the slide at them (`src="/shots/<file>"`) — the dashed placeholder disappears.
 | `official-app-gatt-detail.png` | Official app GATT detail |
 | `ble-iceberg.png` | Full-screen BLE iceberg after the packet examples (1672 × 941, AI-generated illustration) |
 | `panel.png` | The demo web panel |
-| `demo.mp4` | The recorded demo (played from the demo slide) |
 | `gamepad.mp4` | Gamepad steering clip (optional) |
 
 JPEG for photos, PNG for screenshots, ~1600px wide is plenty.

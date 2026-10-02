@@ -167,6 +167,9 @@
   font-size: 20px;
   line-height: 1.4;
 }
+.atm-code-samples .atm-code-tabs__panel .slidev-code {
+  font-size: 22px;
+}
 .atm-code-tabs__panel .atm-note {
   max-width: 88%;
 }

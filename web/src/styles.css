@@ -141,6 +141,39 @@ body {
 
 .preset-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
 
+.delayed-start {
+  margin: 14px 0;
+  padding: 12px;
+  border: 2px solid #b9d6ec;
+  border-radius: 14px;
+  background: #f2f9ff;
+}
+.delayed-start h3 { margin: 0 0 10px; }
+.delay-input-label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #5b6c85; font-weight: 600; }
+.delay-input {
+  width: 88px;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  border-radius: 9px;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+.delay-input:focus { outline: 3px solid rgba(13, 105, 171, 0.2); border-color: var(--blue); }
+.delayed-start-btn { width: 100%; margin-top: 10px; font-size: 16px; }
+.countdown-status {
+  margin-top: 10px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #fff4d6;
+  color: #7a5b00;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+.countdown-status b { font-size: 22px; }
+.delayed-start p { margin: 9px 0 0; color: #6d7b90; font-size: 12px; line-height: 1.4; }
+
 .stop-btn { width: 100%; font-size: 24px; letter-spacing: 2px; padding-top: 18px; padding-bottom: 15px; margin-bottom: 14px; }
 
 .slider-row input[type="range"] { width: 100%; accent-color: var(--red); height: 34px; cursor: pointer; }
