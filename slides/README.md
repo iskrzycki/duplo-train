@@ -102,10 +102,8 @@ logo and circuit artwork stay intact; the heading and speaker details are still
 editable text in `slides.md`. Other full-slide backgrounds were re-encoded as
 JPEG at 1920px (they carry no alpha); the line-art decorations stay PNG.
 
-Three pieces are extracted but not yet placed on a slide, in case you want them:
-`deco-binary.png` (scattered binary text), `deco-grid.png` (a fading square grid)
-and `deco-ring-binary.png` (the ring with binary annotations). Drop any of them in
-with `<Deco src="deco-grid" :x="35" :y="48" :w="15" />`.
+Three extracted decorations that are not used by the current deck were moved to
+`cleanup-candidates/atm/` for later review.
 
 ## Layouts
 

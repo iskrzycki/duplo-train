@@ -7,7 +7,6 @@ the slide at them (`src="/shots/<file>"`) — the dashed placeholder disappears.
 |---|---|
 | `nrf52840.png` | nRF52840 dongle + nRF Sniffer |
 | `Duplo-Steam-Train-by-Lego.webp` | The LEGO DUPLO box (set 10874) |
-| `Duplo-Steam-Train-by-Lego-transparent.png` | Background-removed LEGO DUPLO box cutout |
 | `duplo-app.png` | Official Powered UP app screenshot |
 | `wireshark-list.png` | Wireshark packet list, filtered on `btatt` |
 | `wireshark-detail.png` | The ATT Write frame expanded |
