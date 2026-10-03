@@ -24,9 +24,10 @@ onSlideEnter((_, from) => {
 <style scoped>
 .gamepad-demo {
   display: block;
-  width: 532px;
-  height: 500px;
-  max-width: 100%;
+  flex: none;
+  width: 624px;
+  height: 600px;
+  max-width: none;
   object-fit: fill;
 }
 </style>

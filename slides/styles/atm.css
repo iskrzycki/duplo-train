@@ -187,6 +187,13 @@
   grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
   gap: 1.25em;
 }
+.atm-gatt-tabs__content > .atm-gatt-spec {
+  border: 1px solid var(--atm-orange);
+  border-radius: 12px;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255, 90, 0, 0.1);
+}
 
 /* Footnote band, bottom-left, clear of the logo. */
 /*
@@ -404,9 +411,10 @@
 .connection-screenshot {
   position: relative;
   width: min(100%, 760px);
-  min-height: 330px;
+  min-height: 350px;
   margin-left: auto;
   margin-right: auto;
+  top: -10px;
 }
 
 .connection-screenshot__state {
@@ -416,16 +424,37 @@
   justify-content: center;
 }
 
+/* Same quiet frame for the packet captures on both BLE slides. */
+.connection-screenshot__state .atm-shot,
+.atm-gatt-tabs__content > .atm-shot {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  background: #0d1216;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255, 90, 0, 0.1);
+}
+
 .connection-screenshot__state .atm-shot {
-  width: 100%;
+  width: min(100%, 720px);
+  height: 350px;
 }
 
 .connection-screenshot .atm-shot img {
-  max-height: 330px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.atm-gatt-tabs__content > .atm-shot img {
+  border: 0;
+  /* Enlarge the relevant left-hand packet fields without stretching them. */
+  transform: scale(1.2);
+  transform-origin: left center;
 }
 
 .connection-screenshot .atm-shot__ph {
-  height: 330px;
+  height: 348px;
   aspect-ratio: auto !important;
 }

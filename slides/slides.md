@@ -291,7 +291,7 @@ clicksStart: 1
 <div class="connection-screenshot mt-6">
   <div v-click="[1, 2]" class="connection-screenshot__state">
     <Shot
-      src="/shots/wireshark/ADV_IND.png"
+      src="/shots/wireshark/normalized/ADV_IND.png"
       label="Wireshark frame 3230 — ADV_IND"
       ratio="16/7"
       plain
@@ -300,7 +300,7 @@ clicksStart: 1
 
   <div v-click="[2, 3]" class="connection-screenshot__state">
     <Shot
-      src="/shots/wireshark/CONNECT_IND.png"
+      src="/shots/wireshark/normalized/CONNECT_IND.png"
       label="Wireshark frame 3255 — CONNECT_IND"
       hint="capture frame 3255 · add screenshot here"
       ratio="16/7"
@@ -310,7 +310,7 @@ clicksStart: 1
 
   <div v-click="3" class="connection-screenshot__state">
     <Shot
-      src="/shots/wireshark/GATT_ENGINE.png"
+      src="/shots/wireshark/normalized/ENGINE-WRITE.png"
       label="Wireshark frame 3619 — motor command"
       ratio="16/7"
       plain
@@ -356,6 +356,7 @@ bg: soft
 panel: true
 dense: true
 deco: none
+top: 100
 clicks: 2
 clicksStart: 1
 ---
@@ -377,7 +378,7 @@ clicksStart: 1
 <div class="atm-gatt-tabs__content">
 
 <Shot
-  src="/shots/wireshark/GATT_ENGINE.png"
+  src="/shots/wireshark/normalized/ENGINE-WRITE.png"
   label="Wireshark — motor command write"
   ratio="16/9"
   />
@@ -424,7 +425,7 @@ clicksStart: 1
 <div class="atm-gatt-tabs__content">
 
 <Shot
-  src="/shots/wireshark/GATT_BATTERY.png"
+  src="/shots/wireshark/normalized/BATTERY-NOTIFY.png"
   label="Wireshark — battery notification"
   ratio="16/9"
   />
@@ -780,7 +781,7 @@ deco: none
 
 <div class="mt-0 flex justify-center">
 
-<div style="width: 520px">
+<div style="width: 624px; flex: none; transform: translateY(-65px)">
   <Shot src="/shots/poweredup-app.png" plain />
 </div>
 
@@ -823,7 +824,7 @@ deco: none
 
 ::right::
 
-<div class="flex justify-center">
+<div class="flex justify-center" style="transform: translate(30px, -65px)">
 
 <GamepadDemo />
 

@@ -153,6 +153,20 @@ Pair the controller with the operating system first; the browser's Gamepad API o
 son's LEGO Duplo train* — built with [Slidev](https://sli.dev) and styled to match
 the Allegro Tech Meeting #19 template.
 
+### Preparing Wireshark screenshots
+
+To keep packet-frame screenshots consistent, this repository includes a
+dependency-free macOS helper. It exports every input as a 1600×900 PNG on the
+same dark canvas, preserving the full screenshot and adding padding when needed:
+
+```bash
+node scripts/prepare-slide-screenshots.mjs ~/Desktop/wireshark/*.png
+```
+
+By default, files go to `slides/public/shots/wireshark/`. Run with `--help` for
+custom dimensions, padding color, destination directory, or `--mode cover`
+when intentional center cropping is preferable.
+
 ```bash
 npm install --prefix slides
 npm run dev --prefix slides
