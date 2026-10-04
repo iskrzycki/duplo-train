@@ -47,7 +47,7 @@ layout: atm-cover
 
 <!--
 You tap a button in the app, and this little train moves. But what happens in between? We'll find out.
-I'm Rafał, a frontend engineer at Allegro. But first, let me tell you how it ended up in my hands.
+But first, let me tell you how it ended up in my hands.
 -->
 
 ---
