@@ -397,25 +397,9 @@ hideProgress: true
 <!--
 **Key points**
 
-- Our LWP3 commands sit at the tip
-- BLE also handles channel hopping and radio timing
-- This small part is already enough to drive the train
-
----
-
-We've only touched the tip of the iceberg.
-LWP3 gives meaning to the bytes we send through GATT.
-
-Underneath, the devices hop between radio channels, avoid interference, and keep their clocks in sync.
-The labels below the water show more of BLE in general, including features this train connection does not use.
-
-I just wanted the train to move.
-And this small part is already enough to build our own app.
-
-References:
-- [LEGO Specific GATT Service](https://lego.github.io/lego-ble-wireless-protocol-docs/#lego-specific-gatt-service)
-- [Bluetooth LE Primer](https://www.bluetooth.com/bluetooth-le-primer/)
-- [Bluetooth Link Layer Specification](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-61/out/en/low-energy-controller/link-layer-specification.html)
+- We've barely scratched the surface
+- Underneath: channel hopping and connection timing
+- Still enough to drive the train and build our own app
 -->
 
 ---
@@ -434,23 +418,10 @@ align: center
 </v-click>
 
 <!--
-**Key points**
-
-- The facts discussed bafore sCan I build my own app?
 - My first Bluetooth project
 - `node-poweredup` provides a simple API
-- Time to look at code
-
----
-
-At this point I asked: can I build my own app?
-
-I had never written Bluetooth code before, so I looked for a library.
-
-I found node-poweredup.
-It handles Bluetooth and the LEGO protocol and gives me a simple JavaScript API.
-
-Let's look at the code.
+- covers low level operations (connecting, GATT comunication)
+- Let's look at the code.
 -->
 
 ---
@@ -596,31 +567,10 @@ The LED accepts 10 color values. RGB maps to the nearest match.
 </div>
 
 <!--
-**Key points**
-
 - A high-level API over BLE
-- The library hides the low-level details
+- Event callbacks: `on('discover')`, `on('speed')`, `on('batteryLevel')`
 - The motor watchdog needs repeated commands
 - The LED uses a 10-color palette
-
----
-
-This code uses a high-level API over Bluetooth Low Energy.
-The syntax feels familiar to JavaScript developers, so it is easy to get started.
-
-The library hides low-level BLE details such as device discovery, connection handling, and characteristic access.
-Instead of working directly with the Bluetooth protocol, we use simple methods, objects, and events.
-This lets us focus on the application logic.
-
-There are still a few train-specific details.
-The motor stops after about 200 milliseconds unless we send the power command again. The official app does the same.
-
-The front LED accepts a small palette of ten colors. RGB not supported.
-
-
-
-
-TODO: consider merging two last examples, explain them better?
 -->
 
 ---
@@ -668,29 +618,19 @@ deco: none
 
 <div class="mt-0 flex justify-center">
 
-<div style="width: 624px; flex: none; transform: translateY(-65px)">
-  <Shot src="/shots/poweredup-app.png" plain />
+<div style="width: 624px; height: 600px; flex: none; transform: translate(30px, -96px)">
+  <Shot src="/shots/poweredup-app.png" plain class="atm-shot--transition" />
 </div>
 
 </div>
 
 <!--
-**Key points**
+- This is the result
+- Architecture (react web app + Node.js server)
+- WebSockets
 
-- React app in the browser
-- Node.js handles Bluetooth
-- WebSocket connects the two
 - Live battery and speed updates
 - Everything runs on one machine
-
----
-
-This is the result: a small React web app with train controls and live data.
-
-The React app talks to a Node.js server over WebSocket.
-The server handles the Bluetooth connection. It sends commands to the train and forwards live updates, such as battery level and speed, back to the web app.
-
-For this demo, the browser, server, and Bluetooth adapter all run on the same machine.
 -->
 
 ---
@@ -711,28 +651,16 @@ deco: none
 
 ::right::
 
-<div class="flex justify-center" style="transform: translate(30px, -65px)">
+<div class="flex justify-center" style="transform: translate(30px, -96px)">
 
 <GamepadDemo />
 
 </div>
 
 <!--
-**Key points**
-
-- The BLE protocol stays the same
-- Browser reads the gamepad
-- WebSocket reaches the Node server
-- The phone is no longer special
-
-
-
----
-
-The controller does not change the BLE protocol. The browser reads the 8BitDo
-gamepad, sends a small WebSocket command to the Node server, and the server
-writes the same GATT characteristic. That is the practical payoff: once the
-protocol is understood, the phone is no longer special.
+- Gamepad pairs with the laptop, not the train
+- For the web app, another input source, like a mouse or keyboard
+- Game-inspired wheels for colors and sounds
 -->
 
 ---
@@ -765,9 +693,12 @@ clicks: 2
 <!--
 - Have you ever seen LEGO DUPLO trains drag race here at ATM? Me neither.
 - Let’s watch.
-- First click reveals the video; second click starts playback.
+
 - The black-roofed train is controlled by my app.
 - The yellow-roofed one gets a regular push, the way kids usually play with it.
+
+- Full power makes a difference.
+- Here’s the whole setup in action.
 -->
 
 ---
@@ -798,19 +729,10 @@ clicks: 1
 </div>
 
 <!--
-**Key points**
-
-- The custom dashboard controls the train
-- A gamepad provides another controller
-- One click starts the recording
-- Keep this recording as a live-demo fallback
-
----
-
-This recording shows the custom dashboard and gamepad controlling the train.
-Keep it as a fallback: Bluetooth discovery can be fragile in a crowded room.
+- Here’s the whole setup in action.
+- I'm pairing a gamepad first
+- Turning the train ON
 -->
-
 
 ---
 layout: atm-end
