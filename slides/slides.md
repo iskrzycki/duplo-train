@@ -46,22 +46,8 @@ layout: atm-cover
 </div>
 
 <!--
-**Key points**
-
-- Everyday tech can feel like magic
-- The interesting part stays hidden
-- What happens after a button press?
-- Start with curiosity
-
----
-
-Most gadgets feel like magic because we only see the result.
-You press a button and something happens, while the interesting part stays invisible.
-
-This train made me curious. What happens between pressing the button and seeing it move?
-So I decided to find out.
-
-I'm Rafał, a software engineer at Allegro.
+You tap a button in the app, and this little train moves. But what happens in between? We'll find out.
+I'm Rafał, a frontend engineer at Allegro. But first, let me tell you how it ended up in my hands.
 -->
 
 ---
@@ -70,24 +56,12 @@ photo: /shots/duplo-box-transparent.png
 ---
 
 <!--
-**Key points**
-
-- A Christmas gift
+- A Christmas present
 - I had to test it
-- Simple controls on the track
-- “Free optional app”
+- Train will react to color tiles on the track
+- Bottom-left corner, 
+- “FREE OPTIONAL APP”
 - The app made me curious
-
----
-
-Everything started with a Christmas present: a LEGO DUPLO steam train for my son.
-
-He was still a little too young to play with it on his own, so naturally, I had to test it for him.
-
-Out of the box, it was very simple. Turn it on, give it a gentle push, and the colored tiles on the track trigger different actions.
-
-A few days later, I noticed the words “FREE OPTIONAL APP” in the bottom-left corner.
-That made me curious, so I installed the app to see what else the train could do.
 -->
 
 ---
@@ -109,22 +83,16 @@ dense: true
 </div>
 
 <!--
-**Key points**
+- The app looks dead simple, reasonable for kids
+- Charming animation at start
+- Control screen
+- Train can go forward, backward
+- You can turn on the lights, play sounds
 
-- Looks like this
-- Nice animations at start
 - Every tap sends a message
 - What does the app actually send?
 
----
-
-The official app keeps things simple.
-
-You can move the train forward or backward, stop it, play a few sounds, and change the light.
-
-That makes perfect sense for a children's toy.
-The app looked simple, but every tap had to send a message to the train.
-I wanted to find out what the app was actually sending.
+- See the Bluetooth icon in the top-right? Before we look at the messages, there’s one thing we need to clear up.
 -->
 
 ---
@@ -158,25 +126,10 @@ dense: true
 </div>
 
 <!--
-**Key points**
-
 - One brand, two protocol stacks
-- Classic Bluetooth: continuous connection
+- Classic Bluetooth: steady connection
 - BLE: short messages and low power
 - The train uses BLE
-
----
-
-Before looking for that message, one distinction matters.
-
-Bluetooth is one brand name covering two quite different protocol stacks.
-
-Bluetooth Classic works well when a device needs a steady connection, for example with headphones or game controllers.
-Bluetooth Low Energy is designed for short exchanges and can sleep between them, which makes it a good fit for sensors, fitness bands, item trackers such as an AirTag, and toys.
-
-An AirTag is a useful example of an item tracker: Bluetooth lets nearby devices in the Find My network detect it, while Ultra Wideband enables Precision Finding.
-
-The train uses Bluetooth Low Energy — BLE for short.
 -->
 
 ---
@@ -188,20 +141,10 @@ layout: atm-section
 <div class="atm-lead">What it takes to listen to BLE packets</div>
 
 <!--
-**Key points**
-
 - Messages exist
 - I needed to see them
 - Time for the right tools
-
----
-
-Knowing that messages exist is one thing.
-Seeing them is another.
-
-To see what was happening between the app and the train, I needed the right tools.
 -->
-
 
 ---
 layout: atm-split
@@ -247,31 +190,16 @@ clicks: 2
 </div>
 
 <!--
-**Key points**
+- Nordic Semiconductor nRF52840 Dongle
+- I flashed it with Bluetooth LE Sniffer firmware
+- It listens without connecting to the train
+- It must catch the connection request to follow the link
 
-- nRF52840 dongle with sniffer firmware
-- Adapter needed for macbook
-- It listens without connecting
-- Catch the connection start
-- Wireshark explains the traffic
-- Some plugins needed
-- With the right tools, we can sniff the official app
+- Wireshark shows the packets
+- I can save the capture and inspect it later
+- A Wireshark plugin is needed
 
----
-
-The setup was really small.
-
-First, the hardware: this small USB dongle. Its full name is at the top.
-I flashed it with Nordic's BLE sniffer firmware, which lets it capture packets over the air.
-
-The dongle does not connect to the train. It only listens.
-During a BLE connection, the train and the phone switch between radio channels. In simple terms, they keep changing frequency to reduce interference from Wi-Fi and other devices.
-The sniffer needs to catch the first connection request so it can follow the conversation.
-
-Then, the software: Wireshark.
-It lets me record the traffic and inspect each packet layer by layer.
-
-So, the dongle listens, and Wireshark helps me make sense of what it hears.
+- Now let's look at a simplified view of the exchange
 -->
 
 ---
@@ -319,35 +247,17 @@ clicksStart: 1
 </div>
 
 <!--
-**Key points**
+- Simplified BLE exchange, key moments only
 
-- The train advertises its presence
-- The phone connects
-- The app sends an LWP3 command
-- The train sends notifications
-- Many setup packets sit in between
+- ADV_IND: train advertises, LEGO company ID
 
----
+- CONNECT_IND: phone connects; sniffer must catch it to follow the link
+- Connection, not pairing
 
-This is a simplified view of the exchange.
+- GATT write: LWP3 motor command from the app
+- GATT notification: battery level from the train
 
-First, the train sends advertisements.
-They tell the app that a LEGO DUPLO Train Base is nearby, even before it connects.
-The scan response adds the readable name "Train Base".
-
-When the phone decides to connect, it sends CONNECT_IND.
-This starts the radio link and sets the connection parameters.
-
-Once the link is ready, the app can send commands to the train.
-One tap in the app becomes a motor command.
-
-The command uses LEGO Wireless Protocol 3, or LWP3.
-On the next slide, we'll look at it more closely.
-
-The traffic also goes the other way.
-The train can send notifications back, for example with its battery level.
-
-There are many setup packets in between, but these four moments are enough to understand the exchange.
+- Next: command and battery notification in detail
 -->
 
 ---
@@ -466,35 +376,12 @@ clicksStart: 1
 </div>
 
 <!--
-**Key points**
-
-- ATT carries LWP3 messages
-- Handle `0x000b` is a local GATT address
-- Motor command: port 0, power +69
-- Battery notification: 84%
-- Same handle, two directions
-
----
-
-The fields on the right make the packet easier to read.
-
-Most of them are self-explanatory.
-The only new one is the characteristic handle.
-
-Think of it as a short local address from the train's GATT (TODO describe) table.
-The train assigns it before the connection.
-Here it is 000B, but another device can use a different address.
-
-The first tab is a command from the app to the train.
-We do not need to read every byte.
-The highlighted 00 selects port zero, the built-in motor.
-The highlighted 45 sets forward power to 69.
-
-The second tab is a battery update from the train.
-Again, we only need the highlighted bytes.
-06 means battery level, and 54 is the value: 84 percent.
-
-Both tabs use handle 000B, but the data goes in different directions.
+- App to train: ATT Write Request
+- LWP3 in `Value`; highlighted bytes below
+- Motor port 0, power: 45 hex = 69 decimal
+- The train receives the command and starts moving forward at the requested power
+- Next click: train to app, ATT notification
+- Battery: 54 hex = 84 decimal (84%)
 -->
 
 ---
@@ -838,6 +725,8 @@ deco: none
 - WebSocket reaches the Node server
 - The phone is no longer special
 
+
+
 ---
 
 The controller does not change the BLE protocol. The browser reads the 8BitDo
@@ -846,20 +735,20 @@ writes the same GATT characteristic. That is the practical payoff: once the
 protocol is understood, the phone is no longer special.
 -->
 
-
 ---
 layout: atm-dark
 deco: corner
 dense: true
+clicks: 2
 ---
 
 # The Fast and the Curious
 
-<div class="mt-4 flex justify-center" style="transform: translateY(-50px);">
+<div v-click="1" class="mt-4 flex justify-center" style="transform: translateY(-50px);">
 
-<SlidevVideo
+<ClickToPlayVideo
+  :play-at="2"
   controls
-  autoreset="slide"
   playsinline
   preload="metadata"
   style="display: block; width: 78%; height: 400px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
@@ -869,38 +758,32 @@ dense: true
     This browser cannot play the demo. Open
     <a href="/videos/drag-race.mp4">the MP4 file</a> directly.
   </p>
-</SlidevVideo>
+</ClickToPlayVideo>
 
 </div>
 
 <!--
-**Key points**
-
-- Recorded drag-race run
-- Start it with the built-in controls
-- The video resets when leaving the slide
-
----
-
-This is the recorded drag-race demo. Start it manually with the built-in
-controls. The slide uses the compressed MP4 copy; the original MOV is kept
-separately.
+- Have you ever seen LEGO DUPLO trains drag race here at ATM? Me neither.
+- Let’s watch.
+- First click reveals the video; second click starts playback.
+- The black-roofed train is controlled by my app.
+- The yellow-roofed one gets a regular push, the way kids usually play with it.
 -->
-
 
 ---
 layout: atm-dark
 deco: corner
 dense: true
+clicks: 1
 ---
 
 # A dashboard nobody asked for
 
 <div class="mt-4 flex justify-center" style="transform: translateY(-50px);">
 
-<SlidevVideo
+<ClickToPlayVideo
+  :play-at="1"
   controls
-  autoreset="slide"
   playsinline
   preload="metadata"
   style="display: block; width: 78%; height: 400px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
@@ -910,7 +793,7 @@ dense: true
     This browser cannot play the demo. Open
     <a href="/videos/demo.mp4">the MP4 file</a> directly.
   </p>
-</SlidevVideo>
+</ClickToPlayVideo>
 
 </div>
 
@@ -919,6 +802,7 @@ dense: true
 
 - The custom dashboard controls the train
 - A gamepad provides another controller
+- One click starts the recording
 - Keep this recording as a live-demo fallback
 
 ---
@@ -964,20 +848,8 @@ layout: atm-end
 </div>
 
 <!--
-**Key points**
-
 - Thank you
 - Curiosity and a few tools are enough
 - Everyday electronics are worth exploring
 - Have fun
-- Enjoy your break
-
----
-
-Thank you,
-
-
-Don’t hesitate to explore. With curiosity and a few tools, we can explore how everyday electronic devices really work and have a lot of fun doing it.
-
-Enjoy your break.
 -->
