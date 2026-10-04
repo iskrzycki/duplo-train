@@ -770,8 +770,8 @@ layout: atm-end
 </div>
 
 <!--
+- And that's it.
+- Curiosity and a few tools are enough to get started
+- The links to the project, the library, and the protocol are here
 - Thank you
-- Curiosity and a few tools are enough
-- Everyday electronics are worth exploring
-- Have fun
 -->
