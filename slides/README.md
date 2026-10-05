@@ -19,6 +19,7 @@ npm run dev --prefix slides      # http://localhost:3030
 | `npm run export` | `dist/duplo-train.pdf` |
 | `npm run export:png` | One PNG per slide in `dist/png/` |
 | `npm run notes` | Speaker notes as a PDF |
+| `npm run study-guide` | Phone-friendly PDF with each slide and its speaker notes |
 
 ## Cloudflare Pages
 
@@ -53,6 +54,10 @@ slides is at [/overview](http://localhost:3030/overview). `f` fullscreen,
 `npm run export` needs a Chromium — this repo already pins
 `playwright-chromium`, so `npx playwright install chromium` once is enough if it
 is missing.
+
+`npm run study-guide` creates `dist/duplo-train-study-guide.pdf`. Each slide
+starts on a portrait A4 page with a large preview and its speaker notes below,
+so the file can be used as a rehearsal handout on a phone without PowerPoint.
 
 ## Where the styling comes from
 

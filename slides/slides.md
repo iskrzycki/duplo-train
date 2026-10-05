@@ -667,6 +667,7 @@ deco: none
 layout: atm-dark
 deco: corner
 dense: true
+top: 56
 clicks: 2
 ---
 
@@ -679,7 +680,7 @@ clicks: 2
   controls
   playsinline
   preload="metadata"
-  style="display: block; width: 78%; height: 400px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
+  style="display: block; width: 92%; height: auto; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
 >
   <source src="/videos/drag-race.mp4" type="video/mp4" />
   <p>
@@ -705,6 +706,7 @@ clicks: 2
 layout: atm-dark
 deco: corner
 dense: true
+top: 56
 clicks: 1
 ---
 
@@ -717,7 +719,7 @@ clicks: 1
   controls
   playsinline
   preload="metadata"
-  style="display: block; width: 78%; height: 400px; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
+  style="display: block; width: 92%; height: auto; object-fit: contain; background: #101820; border: 1px solid rgba(255, 255, 255, 0.28);"
 >
   <source src="/videos/demo.mp4" type="video/mp4" />
   <p>
@@ -769,9 +771,15 @@ layout: atm-end
   </div>
 </div>
 
+<a class="atm-survey" href="https://forms.gle/mf5XBh5PYa8j8hf28" target="_blank" rel="noreferrer" aria-label="Open the 1 minute survey">
+  <span class="atm-survey__label">1 minute survey</span>
+  <img src="/qr-survey.svg" alt="QR code for the 1 minute survey" />
+</a>
+
 <!--
 - And that's it.
 - Curiosity and a few tools are enough to get started
 - The links to the project, the library, and the protocol are here
+- Please scan the QR code and fill in the one-minute survey
 - Thank you
 -->

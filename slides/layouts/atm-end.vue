@@ -28,4 +28,29 @@
   text-shadow: 0 2px 22px rgba(0, 0, 0, 0.55);
 }
 .atm-end__content :deep(h1 + *) { margin-top: 1.2em; }
+.atm-end__content :deep(.atm-survey) {
+  position: absolute;
+  top: -105px;
+  right: 0;
+  width: 304px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--atm-paper);
+  text-decoration: none;
+  border-bottom: 0;
+}
+.atm-end__content :deep(.atm-survey__label) {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.8);
+}
+.atm-end__content :deep(.atm-survey img) {
+  display: block;
+  width: 288px;
+  height: 288px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+}
 </style>
