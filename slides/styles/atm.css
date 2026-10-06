@@ -189,15 +189,15 @@
 /* Larger side-by-side packet views on the merged GATT slide. */
 .atm-gatt-tabs {
   max-width: 100%;
-  margin-top: -2.3em;
+  margin-top: -2.55em;
 }
 .atm-gatt-tabs .atm-code-tabs__panel {
   padding-top: 0.8em;
 }
 .atm-gatt-tabs__content {
   display: grid;
-  grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
-  gap: 1.25em;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1.15em;
 }
 .atm-gatt-tabs__content > .atm-gatt-spec {
   border: 1px solid var(--atm-orange);
@@ -417,16 +417,16 @@
 /* Compact packet sequence with one changing Wireshark view below it. */
 .connection-diagram {
   position: relative;
-  top: -24px;
+  top: -32px;
 }
 
 .connection-screenshot {
   position: relative;
-  width: min(100%, 760px);
-  min-height: 350px;
+  width: min(100%, 720px);
+  min-height: 330px;
   margin-left: auto;
   margin-right: auto;
-  top: -10px;
+  top: -18px;
 }
 
 .connection-screenshot__state {
@@ -449,8 +449,8 @@
 }
 
 .connection-screenshot__state .atm-shot {
-  width: min(100%, 720px);
-  height: 350px;
+  width: min(100%, 680px);
+  height: 330px;
 }
 
 .connection-screenshot .atm-shot img {
@@ -467,6 +467,6 @@
 }
 
 .connection-screenshot .atm-shot__ph {
-  height: 348px;
+  height: 328px;
   aspect-ratio: auto !important;
 }

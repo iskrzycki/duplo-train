@@ -53,6 +53,8 @@ But first, let me tell you how it ended up in my hands.
 ---
 layout: atm-photo
 photo: /shots/duplo-box-transparent.png
+imageScale: 0.94
+imageOffsetY: '-1.5%'
 ---
 
 <!--
@@ -67,7 +69,7 @@ photo: /shots/duplo-box-transparent.png
 ---
 layout: atm-dark
 deco: hand
-dense: true
+top: 100
 ---
 
 # What the official app does
@@ -83,53 +85,13 @@ dense: true
 </div>
 
 <!--
-- The app looks dead simple, reasonable for kids
-- Charming animation at start
+- has charming animation at start
+- looks dead simple, reasonable for kids
 - Control screen
 - Train can go forward, backward
 - You can turn on the lights, play sounds
-
 - Every tap sends a message
 - What does the app actually send?
-
-- See the Bluetooth icon in the top-right? Before we look at the messages, there’s one thing we need to clear up.
--->
-
----
-layout: atm-dark
-deco: squares
-dense: true
----
-
-# Bluetooth Classic vs. Bluetooth Low Energy
-
-<div class="atm-sub">Two protocol stacks under one brand name</div>
-
-<div class="grid grid-cols-2 gap-5 mt-6">
-
-<PanelCard v-click title="Bluetooth Classic">
-
-- Continuous streams
-- Higher power use
-- Audio and game controllers
-
-</PanelCard>
-
-<PanelCard v-click accent title="Bluetooth Low Energy (BLE)">
-
-- Short attribute messages
-- Sleeps between events
-- Sensors, fitness bands, item trackers and toys
-
-</PanelCard>
-
-</div>
-
-<!--
-- One brand, two protocol stacks
-- Classic Bluetooth: steady connection
-- BLE: short messages and low power
-- The train uses BLE
 -->
 
 ---
@@ -151,6 +113,7 @@ layout: atm-split
 surface: dark
 ratio: 0.82fr 1.35fr
 dense: true
+top: 128
 deco: none
 clicks: 2
 ---
@@ -190,16 +153,57 @@ clicks: 2
 </div>
 
 <!--
-- Nordic Semiconductor nRF52840 Dongle
+- Nordic Semiconductor Dongle
 - I flashed it with Bluetooth LE Sniffer firmware
 - It listens without connecting to the train
 - It must catch the connection request to follow the link
 
 - Wireshark shows the packets
+- open source, industry standard
 - I can save the capture and inspect it later
 - A Wireshark plugin is needed
 
-- Now let's look at a simplified view of the exchange
+- But before we actually will sniff for packets
+- we need to clarify one thing
+-->
+
+---
+layout: atm-dark
+deco: squares
+top: 100
+---
+
+# Bluetooth Classic vs. Bluetooth Low Energy
+
+<div class="atm-sub">Two protocol stacks under one brand name</div>
+
+<div class="grid grid-cols-2 gap-5 mt-6">
+
+<PanelCard v-click title="Bluetooth Classic">
+
+- Continuous streams
+- Higher power use
+- Audio and game controllers
+
+</PanelCard>
+
+<PanelCard v-click accent title="Bluetooth Low Energy (BLE)">
+
+- Short attribute messages
+- Sleeps between events
+- Sensors, fitness bands, item trackers and toys
+
+</PanelCard>
+
+</div>
+
+<!--
+- One brand, two different protocol stacks
+- Classic Bluetooth: steady connection, high security
+- on the other hand BLE: short messages and low power, less secure
+- The train uses BLE
+
+- Now let's look at a simplified view of the packets exchange
 -->
 
 ---
@@ -257,7 +261,7 @@ clicksStart: 1
 - GATT write: LWP3 motor command from the app
 - GATT notification: battery level from the train
 
-- Next: command and battery notification in detail
+- Next: engine command and battery notification in detail
 -->
 
 ---
@@ -380,8 +384,11 @@ clicksStart: 1
 - LWP3 in `Value`; highlighted bytes below
 - Motor port 0, power: 45 hex = 69 decimal
 - The train receives the command and starts moving forward at the requested power
+
 - Next click: train to app, ATT notification
 - Battery: 54 hex = 84 decimal (84%)
+
+- Ports, magic numbers comes from LWP3 docs
 -->
 
 ---
@@ -395,10 +402,11 @@ hideProgress: true
 <span class="sr-only">The BLE iceberg. LWP3, advertising, connecting and GATT writes and notifications sit above the water. Below are rotating private addresses, pairing and bonding, frequency hopping, adaptive channel maps, connection events, CSA #1 and CSA #2, clock drift and window widening, and data whitening. I just wanted the train to move.</span>
 
 <!--
-**Key points**
+- My talk covers just the tip of this iceberg
 
 - We've barely scratched the surface
 - Underneath: channel hopping and connection timing
+
 - Still enough to drive the train and build our own app
 -->
 
@@ -420,7 +428,8 @@ align: center
 <!--
 - My first Bluetooth project
 - `node-poweredup` provides a simple API
-- covers low level operations (connecting, GATT comunication)
+- supports few lego sets, mainly trains
+- covers low level operations (connecting, GATT comunication in both directions)
 - Let's look at the code.
 -->
 
@@ -567,10 +576,13 @@ The LED accepts 10 color values. RGB maps to the nearest match.
 </div>
 
 <!--
-- A high-level API over BLE
+- provides a high-level API over BLE
 - Event callbacks: `on('discover')`, `on('speed')`, `on('batteryLevel')`
 - The motor watchdog needs repeated commands
 - The LED uses a 10-color palette
+- gives us some Consts with magic numbers from LWP3 under the hood
+
+- Next: Let's se what I managed to build
 -->
 
 ---
@@ -626,11 +638,16 @@ deco: none
 
 <!--
 - This is the result
-- Architecture (react web app + Node.js server)
+- straightforward Architecture 
+(react web app + Node.js server)
 - WebSockets
-
 - Live battery and speed updates
 - Everything runs on one machine
+
+And one week ao I thought that I have enough.
+But... I'm a gamer, I have gamepad on my desk
+
+would be nice to control train
 -->
 
 ---

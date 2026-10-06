@@ -54,7 +54,7 @@ const progressPercent = computed(() => `${progress.value * 100}%`)
   position: absolute;
   left: 5%;
   right: 5%;
-  bottom: 10px;
+  bottom: 26px;
   height: 14px;
 }
 

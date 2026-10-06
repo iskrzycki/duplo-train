@@ -3,13 +3,28 @@ withDefaults(defineProps<{
   photo: string
   backdrop?: string
   position?: string
-}>(), { backdrop: '', position: 'center' })
+  imageScale?: number
+  imageOffsetY?: string
+}>(), {
+  backdrop: '',
+  position: 'center',
+  imageScale: 1,
+  imageOffsetY: '0px',
+})
 </script>
 
 <template>
   <div class="slidev-layout atm-slide atm--dark atm-photo">
     <img v-if="backdrop" class="atm-photo__backdrop" :src="backdrop" alt="" aria-hidden="true" />
-    <img class="atm-photo__image" :src="photo" alt="" :style="{ objectPosition: position }" />
+    <img
+      class="atm-photo__image"
+      :src="photo"
+      alt=""
+      :style="{
+        objectPosition: position,
+        transform: `translateY(${imageOffsetY}) scale(${imageScale})`,
+      }"
+    />
     <div class="atm-photo__body">
       <div class="atm-photo__content">
         <slot />

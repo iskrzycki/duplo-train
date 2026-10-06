@@ -8,6 +8,7 @@
     bg: soft | bokeh | orb     (dark surface only, default: soft)
     panel: true | 'soft'       (dark surface only)
     ratio: '1fr 1fr' | '3fr 2fr' | ...   (default: '1.05fr 1fr')
+    top: 100                                  custom content offset in pixels
     deco: as per the dark/light layouts
 -->
 <script setup lang="ts">
@@ -17,6 +18,7 @@ withDefaults(defineProps<{
   panel?: boolean | 'soft'
   ratio?: string
   dense?: boolean
+  top?: number
   deco?: 'none' | 'connector' | 'corner' | 'chip' | 'ring' | 'squares' | 'hand'
 }>(), {
   surface: 'dark', bg: 'soft', panel: false, ratio: '1.05fr 1fr',
@@ -57,7 +59,7 @@ withDefaults(defineProps<{
       <div
         class="atm-content atm-split"
         :class="{ 'atm-content--hi': dense }"
-        :style="{ gridTemplateColumns: ratio }"
+        :style="{ gridTemplateColumns: ratio, top: top ? `${top}px` : undefined }"
       >
         <div class="atm-split__col"><slot /></div>
         <div class="atm-split__col"><slot name="right" /></div>
