@@ -607,6 +607,7 @@ deco: none
   <li>20% higher top speed</li>
   <li>Adjustable speed</li>
   <li>10 light colors</li>
+  <li>Several light effects</li>
   <li>5 sounds</li>
   <li>7 beeps</li>
 </ul>
